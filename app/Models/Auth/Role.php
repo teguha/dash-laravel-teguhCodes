@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Traits\HasUserTracking;
+// use App\Traits\HasUserTracking;
 use Illuminate\Testing\Fluent\Concerns\Has;
 
 class Role extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUserTracking;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.

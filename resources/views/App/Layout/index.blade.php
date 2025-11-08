@@ -6,7 +6,107 @@
     <title>@yield('title')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes draw-search {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        /* Bouncing Dots with Color */
+        @keyframes bounce-dots {
+            0%, 80%, 100% {
+                transform: scale(0.8) translateY(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2) translateY(-20px);
+                opacity: 1;
+            }
+        }
+
+         .bouncing-dots {
+            display: flex;
+            gap: 12px;
+        }
+
+        .bouncing-dots .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            animation: bounce-dots 1.4s infinite ease-in-out;
+        }
+
+        .bouncing-dots .dot:nth-child(1) {
+            background: #3b82f6;
+            animation-delay: -0.32s;
+        }
+
+        .bouncing-dots .dot:nth-child(2) {
+            background: #8b5cf6;
+            animation-delay: -0.16s;
+        }
+
+        .bouncing-dots .dot:nth-child(3) {
+            background: #ec4899;
+            animation-delay: 0s;
+        }
+
+        .bouncing-dots .dot:nth-child(4) {
+            background: #f59e0b;
+            animation-delay: 0.16s;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse-slow 2s ease-in-out infinite;
+        }
+        
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+        }
+        
+        /* Custom gradient backgrounds */
+        .gradient-bg-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-bg-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .gradient-bg-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .gradient-bg-4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+    </style>
 </head>
+
 <body class="bg-gray-100">
 
     <!-- Sidebar -->
@@ -53,6 +153,18 @@
         </div> 
     </div>
 
+    <!-- 1. jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 (untuk delete confirmation) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         const sidebar = document.getElementById('sidebar');

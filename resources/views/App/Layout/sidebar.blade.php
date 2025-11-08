@@ -74,7 +74,7 @@
         @endif
 
         @if($item->is_multi == false)
-            <a href="{{$item->href}}" class=" {{ Request::routeIs($item->group_link) ? 'flex items-center px-4 py-3 text-white bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-lg transition-all hover:shadow-md text-sm' : 'flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition-all text-sm' }}">
+            <a href="{{route($item->href)}}" class=" {{ Request::routeIs($item->group_link) ? 'flex items-center px-4 py-3 text-white bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-lg transition-all hover:shadow-md text-sm' : 'flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition-all text-sm' }}">
                 <i class="{{$item->icon}} w-5"></i>
                 <span class="ml-3 font-medium menu-text">{{$item->text_menu}}</span>
             </a>
@@ -91,7 +91,7 @@
                 <div class="{{ Request::routeIs($item->group_link) ? 'submenu ml-4 mt-2 space-y-1' : 'submenu hidden ml-4 mt-2 space-y-1' }}">
                     @foreach ($item->href as $child)
                         @if(isset($child->text_menu))
-                            <a href="{{$child->href}}" class="{{ Request::routeIs($child->href) ? 'flex items-center px-4 py-2 text-white bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-lg transition-all text-sm' : 'flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-50 transition-all text-sm'}} ">
+                            <a href="{{route($child->href)}}" class="{{ Request::routeIs($child->href) ? 'flex items-center px-4 py-2 text-white bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-lg transition-all text-sm' : 'flex items-center px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-50 transition-all text-sm'}} ">
                                 <i class="{{$child->icon}} text-xs w-5"></i>
                                 <span class="ml-3 menu-text">{{$child->text_menu}}</span>
                             </a>

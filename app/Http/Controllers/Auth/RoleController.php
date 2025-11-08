@@ -28,59 +28,38 @@ class RoleController extends BaseController
 
     public function getData(Request $request)
     {
-        $query = Role::query(); // kalau ada relasi permission
+        $query = User::query();
 
-        return DataTables::of($query)
-            ->filter(function ($query) use ($request) {
-                if ($request->search) {
-                    $query->where('name', 'like', '%' . $request->search . '%');
-                }
-                if ($request->roles) {
-                    $query->where('name', $request->roles);
-                }
-                if ($request->date) {
-                    $query->whereDate('created_at', $request->date);
-                }
-            })
-            ->editColumn('name', function($row){
-                return '
-                <div style="font-size:14px">
-                    <span class="badge badge-'.($row->color).'">
-                        '.e($row->name).'
-                    </span>
-                </div>
-                    
-                ';
-            })
-            ->editColumn('permission', function ($row) {
-                $permissions = json_decode($row->permission ?? '[]', true);
-                $count = count($permissions);
-                return '
+        // 🔍 Filter pencarian
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhere('email', 'like', "%$search%");
+            });
+        }
 
-                
-                <div style="font-size:14px">
-                    <span class="pr-2 opacity-6 text-xs">
-                        <i class="fa fa-key"></i>
-                    </span>
-                    
-                    '.e($count).' Permission
-                </div>
-                
-                ';
-            })
-            ->editColumn('created_at', function ($row) {
-                return datatable_user_time($row->re_created_by, $row->created_at);
-            })
-            ->editColumn('updated_at', function ($row) {
-                return datatable_user_time($row->re_updated_by, $row->updated_at);
-            })
-            ->addColumn('action', function ($row) {
-                $resource = 'role';
-                return view('Dashboard.partials.action-type2', compact('row','resource'))->render();
-            })
-            ->rawColumns(['name','permission','created_at','updated_at','action']) // kalau pakai button/link HTML
-            ->addIndexColumn()
-            ->make(true);
+        // 🧩 Filter tambahan (role, status, dsb)
+        if ($role = $request->role) {
+            $query->where('role', $role);
+        }
+
+        // ⏳ Pagination manual
+        $perPage = 10;
+        $page = $request->get('page', 1);
+
+        $data = $query->orderBy('id', 'desc')
+                      ->paginate($perPage, ['*'], 'page', $page);
+
+        // 🔁 Return data JSON agar JS bisa render
+        return response()->json([
+            'data' => $data->items(),
+            'pagination' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+            ]
+        ]);
     }
 
 

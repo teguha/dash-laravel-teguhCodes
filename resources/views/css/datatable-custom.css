@@ -1,0 +1,182 @@
+/* Custom CSS untuk DataTable dengan Tailwind */
+
+/* Hide default DataTables styling */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    color: inherit;
+}
+
+/* Table styling */
+#data-table {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+#data-table thead {
+    background: linear-gradient(to right, #f9fafb, #f3f4f6);
+}
+
+#data-table thead th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+#data-table thead th:last-child {
+    border-right: none;
+}
+
+#data-table tbody td {
+    padding: 1rem 1.5rem;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#data-table tbody td:last-child {
+    border-right: none;
+}
+
+#data-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+#data-table tbody tr:hover {
+    background-color: #eff6ff;
+}
+
+/* Sortable columns */
+#data-table thead th.sorting,
+#data-table thead th.sorting_asc,
+#data-table thead th.sorting_desc {
+    cursor: pointer;
+    position: relative;
+    padding-right: 2.5rem;
+}
+
+#data-table thead th.sorting:before,
+#data-table thead th.sorting_asc:before,
+#data-table thead th.sorting_desc:before {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+}
+
+#data-table thead th.sorting:before {
+    border-bottom: 5px solid #9ca3af;
+}
+
+#data-table thead th.sorting_asc:before {
+    border-bottom: 6px solid #2563eb;
+}
+
+#data-table thead th.sorting_desc:before {
+    border-top: 6px solid #2563eb;
+    border-bottom: none;
+}
+
+/* Wrapper untuk table dengan overflow */
+.dataTables_wrapper {
+    padding: 0;
+}
+
+/* Processing indicator */
+.dataTables_processing {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background: white !important;
+    padding: 2rem !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Pagination styling */
+.dataTables_paginate .paginate_button {
+    margin: 0 2px;
+    display: inline-block;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border-color: #bfdbfe !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: #2563eb !important;
+    color: white !important;
+    border-color: #2563eb !important;
+}
+
+.dataTables_paginate .paginate_button.current:hover {
+    background: #1d4ed8 !important;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Length menu styling */
+.dataTables_length select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+/* Empty state */
+.dataTables_empty {
+    text-align: center;
+    padding: 3rem 1rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #data-table thead th,
+    #data-table tbody td {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .dataTables_wrapper > div {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+}
+
+/* Loading overlay */
+.dataTables_wrapper.loading {
+    position: relative;
+}
+
+.dataTables_wrapper.loading:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+}
