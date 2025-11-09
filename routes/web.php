@@ -51,7 +51,7 @@ Route::prefix('admin/setting-role')->name('admin.setting.role.')->group(function
     Route::get('/data', [RoleController::class, 'getData'])->name('data');
     Route::get('/index', [RoleController::class, 'index'])->name('index');
     Route::get('/show/{id}', [RoleController::class, 'show'])->name('show');
-    Route::get('/create', [RoleController::class, 'create'])->name('create');
+    // Route::post('/create', [RoleController::class, 'create'])->name('create');
     Route::post('/store', [RoleController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [RoleController::class, 'edit'])->name('edit');
     Route::get('/assign-permission/{id}', [RoleController::class, 'assignPermission'])->name('assignPermission');
@@ -65,7 +65,7 @@ Route::prefix('admin/setting-permission')->name('admin.setting.permission.')->gr
     Route::get('/data', [PermissionController::class, 'getData'])->name('data');
     Route::get('/index', [PermissionController::class, 'index'])->name('index');
     Route::get('/show/{id}', [PermissionController::class, 'show'])->name('show');
-    Route::get('/create', [PermissionController::class, 'create'])->name('create');
+    Route::post('/create', [PermissionController::class, 'create'])->name('create');
     Route::post('/store', [PermissionController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [PermissionController::class, 'edit'])->name('edit');
     Route::post('/update/{id}', [PermissionController::class, 'update'])->name('update');
@@ -144,5 +144,5 @@ Route::get('/ajax/search-sub-bagian', [SubBagianController::class, 'searchSubBag
 
 
 Route::get('/home', function () {
-    return view('Auth.Role.index');
+    return view('Template.table');
 })->name('dash.home');

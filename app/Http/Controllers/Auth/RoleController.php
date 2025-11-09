@@ -28,44 +28,73 @@ class RoleController extends BaseController
 
     public function getData(Request $request)
     {
-        $query = User::query();
+        $query = Role::query();
 
         // 🔍 Filter pencarian
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%");
+                $q->where('name', 'like', "%$search%");
             });
         }
 
-        // 🧩 Filter tambahan (role, status, dsb)
+        // Filter tambahan (role, status, dsb)
         if ($role = $request->role) {
-            $query->where('role', $role);
+            $query->where('name', $role);
         }
 
-        // ⏳ Pagination manual
+        if($date = $request->date){
+            $query->whereDate('created_at', $date);
+        }
+
+        // Pagination manual
         $perPage = 10;
         $page = $request->get('page', 1);
 
-        $data = $query->orderBy('id', 'desc')
-                      ->paginate($perPage, ['*'], 'page', $page);
+        $sortBy = match($request->sort_by ?? '') {
+            'name' => 'name',
+            'updated' => 'updated_at',
+            'permission' => 'permission',
+            default => 'id',
+        };
 
-        // 🔁 Return data JSON agar JS bisa render
+        // Tentukan arah sort, default 'desc'
+        $sortDir = $request->sort_dir ?? 'desc';
+
+        // Jalankan query dengan orderBy, baru paginate
+        if($sortBy == 'permission'){
+            $data = $query->orderByRaw('JSON_LENGTH(permission) ' . $sortDir)->paginate($perPage, ['*'], 'page', $page);
+        }else{
+            $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
+        }
+
         return response()->json([
-            'data' => $data->items(),
+            'data' =>$data->map(function ($item) {
+                $permissions = json_decode($item->permission ?? '[]', true);
+                $count = is_array($permissions) ? count($permissions) : 0;
+
+                return [
+                    'id' => $item->id,
+                    'name' => ucfirst($item->name),
+                    'color' => $item->color,
+                    'permission_count' => $count,
+                    'updated_at' => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
+                ];
+            }),
             'pagination' => [
-                'total' => $data->total(),
-                'per_page' => $data->perPage(),
                 'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
                 'last_page' => $data->lastPage(),
+                'total' => $data->total(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
             ]
         ]);
     }
 
 
-    public function create(){
-        return view('Dashboard.auth.role.create');
-    }
+    // public function create(){
+    //     return view('Dashboard.auth.role.create');
+    // }
 
 
     public function show($id){
@@ -87,18 +116,20 @@ class RoleController extends BaseController
         ]);
 
         if(empty($request->color_theme)){
-            return redirect()->back()
-            ->withErrors(['name' => 'Color role cannot be empty.'])
-            ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Color cannot be empty'
+            ], 422);
         }
 
         $slug = Str::slug($request->name);
         $duplicateName = Role::where('slug', $slug)->first();
 
         if ($duplicateName) {
-            return redirect()->back()
-            ->withErrors(['name' => 'Role name has ready use.'])
-            ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Role alredy exist '
+            ], 422);
         }
 
         Role::create([
@@ -107,13 +138,21 @@ class RoleController extends BaseController
             'color' => $request->color_theme,
         ]); 
 
-        return redirect()->route('admin.setting.role.index')->with('success', 'Success add data.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Success add data'
+        ]);
 
     }
 
     public function edit($id){
         $role = Role::find($id);
-        return view('Dashboard.auth.role.edit', compact('role'));
+        return response()->json([
+            'id' => $role->id,
+            'name' => $role->name,
+            'color' => $role->color,
+        ]);
+        // return view('Dashboard.auth.role.edit', compact('role'));
     }
 
     public function update(Request $request, $id){

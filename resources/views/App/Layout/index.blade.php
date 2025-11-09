@@ -6,6 +6,135 @@
     <title>@yield('title')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CDN untuk Select2 - Tambahkan di head section -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Custom CSS untuk styling Select2 -->
+    <style>
+        /* Select2 Container Styling */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #3b82f6;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        /* Selected Value Styling */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            line-height: 46px;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #9ca3af;
+        }
+
+        /* Arrow Styling */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 46px;
+            right: 10px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #6b7280 transparent transparent transparent;
+            border-width: 6px 5px 0 5px;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #6b7280 transparent;
+            border-width: 0 5px 6px 5px;
+        }
+
+        /* Dropdown Styling */
+        .select2-container--default .select2-results__option {
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #eff6ff;
+            color: #1f2937;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        /* Dropdown Container */
+        .select2-dropdown {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-top: 4px;
+        }
+
+        /* Search Box Styling */
+        .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 8px 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Custom width for select2 */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        /* Color badge in options */
+        .color-badge {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 2px solid #e5e7eb;
+        }
+
+        /* Label styling */
+        .custom-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .custom-label i {
+            color: #9ca3af;
+            margin-right: 8px;
+        }
+    </style>
+
+    {{-- animation table --}}
     <style>
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
@@ -105,6 +234,48 @@
             background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
         }
     </style>
+
+    {{-- alert --}}
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .alert-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .alert-content {
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .icon-success {
+            animation: scaleIn 0.5s ease-out;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100">
@@ -155,17 +326,9 @@
 
     <!-- 1. jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-        <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- SweetAlert2 (untuk delete confirmation) -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -262,9 +425,9 @@
             sidebar.classList.add('-translate-x-full');
         }
     </script>
+    <script src="{{asset('js/alert.js')}}"></script>
 
     @stack('custom-scripts')
-
 
 </body>
 </html>
