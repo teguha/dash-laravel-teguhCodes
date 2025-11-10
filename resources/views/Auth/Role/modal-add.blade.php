@@ -17,7 +17,7 @@
         </div>
 
         <!-- Modal Body -->
-        <form id="formAdd">
+        <form id="formAdd" data-type="add" data-url="#">
             @csrf
             
             <div class="p-6 space-y-5 hidden" id="form-loading">
@@ -46,7 +46,7 @@
                         <i class="fas fa-palette"></i>
                         Color Selection
                     </label>
-                    <select id="color_theme" name="color_theme" class="w-full" required>
+                    <select id="color-theme" name="color_theme" class="w-full" required>
                         <option value="" disabled selected>Choose a color...</option>
                         <option value="green" data-color="#10b981">Green</option>
                         <option value="blue" data-color="#3b82f6">Blue</option>

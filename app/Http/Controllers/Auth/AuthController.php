@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 use App\Models\Auth\User;
 use App\Models\Auth\Role;
 use App\Models\Auth\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends BaseController
 {
@@ -38,6 +39,12 @@ class AuthController extends BaseController
 
     public function update(){
 
+    }
+
+    public function profile(){
+        $user = Auth::user();
+
+        return view('Auth.User.profile');
     }
 
 

@@ -37,6 +37,7 @@ Route::get('/', function () {
 
 // user
 Route::prefix('admin/auth')->name('admin.auth.')->group(function () {
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
     Route::get('/index', [AuthController::class, 'index'])->name('index');
     Route::get('/show', [AuthController::class, 'show'])->name('show');
     Route::get('/create', [AuthController::class, 'create'])->name('create');
@@ -51,12 +52,13 @@ Route::prefix('admin/setting-role')->name('admin.setting.role.')->group(function
     Route::get('/data', [RoleController::class, 'getData'])->name('data');
     Route::get('/index', [RoleController::class, 'index'])->name('index');
     Route::get('/show/{id}', [RoleController::class, 'show'])->name('show');
+    Route::get('/track/{id}', [RoleController::class, 'track'])->name('track');
     // Route::post('/create', [RoleController::class, 'create'])->name('create');
     Route::post('/store', [RoleController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [RoleController::class, 'edit'])->name('edit');
     Route::get('/assign-permission/{id}', [RoleController::class, 'assignPermission'])->name('assignPermission');
     Route::post('/store-permission/{id}', [RoleController::class, 'storePermission'])->name('storePermission');
-    Route::post('/update/{id}', [RoleController::class, 'update'])->name('update');
+    Route::put('/update/{id}', [RoleController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('delete');
 });
 

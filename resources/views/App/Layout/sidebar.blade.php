@@ -22,10 +22,10 @@
 
     [
       'href' => [
-        ['href' => 'dash.home', 'text_menu' => 'Profile', 'icon' => 'fas fa-user', 'group_link' => 'dash.home' , 'perm' => 'auth-view'],   
+        ['href' => 'admin.auth.profile', 'text_menu' => 'Profile', 'icon' => 'fas fa-user', 'group_link' => 'admin.auth.*' , 'perm' => 'auth-view'],   
         ['href' => 'admin.auth.index', 'text_menu' => 'Update Password', 'icon' => 'fas fa-user', 'group_link' => 'admin.auth.*', 'perm' => 'auth-view'],
       ],
-      'group_link' => 'dash.home',
+      'group_link' => 'dash.auth.*',
       'text_header' => "Auth",
       'text_menu' => 'Auth',
       'icon' => 'fas fa-users',

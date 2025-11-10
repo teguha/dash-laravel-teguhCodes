@@ -79,12 +79,15 @@
     </main>
 
     {{-- modal --}}
-    @include('Auth.Role.modal-add')
-    @include('Auth.Role.modal-edit')
+    @include('Auth.Role.modal')
+    @include('App.Partials.delete-modal')
 @endsection
 
 
 @push('custom-scripts')
+    {{-- table pagination --}}
+    <script src="{{asset('js/table-pagination.js')}}"></script>
+
     {{-- datatable --}}
     <script>
         const colorMap = {
@@ -118,11 +121,22 @@
             "#7f1d1d": "maroon"
         };
 
-        $(function() {
+        const routes = {
+            add     : "{{ route('admin.setting.role.store') }}",
+            edit    : "{{ route('admin.setting.role.edit', ['id' => ':id']) }}",
+            show    : "{{ route('admin.setting.role.edit', ['id' => ':id']) }}",
+            track   : "{{ route('admin.setting.role.track', ['id' => ':id']) }}",
+            perms   : "{{ route('admin.setting.role.assignPermission', ['id' => ':id']) }}",
+            delete  : "{{ route('admin.setting.role.delete', ['id' => ':id']) }}"
+        };
+
+        // $(function() {
             let currentSortBy = null;
             let currentSortDir = 'asc';
+            let dataToDelete = null;
             const lengthHead = @json($columns);
 
+            // load table first
             loadTable(1); 
 
             // Ketika user mengetik atau klik tombol filter
@@ -168,7 +182,6 @@
                         renderPaginationInfo(res.pagination);
                     },
                     error: function(err) {
-                        console.log(err);
                         $('#table-body').html(`
                             <tr><td colspan="${lengthHead.length + 3}" class="text-center text-red-500">
                                 @include('App.Notif.error')
@@ -181,7 +194,7 @@
             //Render data ke tabel
             function renderTable(data, pagination) {
                 let html = '';
-                if (data.length === 0) {
+                if (data && data.length === 0) {
                     html = `
                     <tr><td colspan="${lengthHead.length + 3}" class="text-center py-6 text-gray-500">
                         @include('App.Notif.nodata')
@@ -224,30 +237,37 @@
                                         </button>
                                         
                                         <div class="dropdown-menu hidden absolute left-1/2 -translate-x-1/2 w-52 bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] overflow-hidden">
-                                            <a href="/users/${item.id}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                                            <a href='#' data-id="${item.id}" data-type="show" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
                                                 <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                                                     <i class="fas fa-eye text-blue-600 text-xs"></i>
                                                 </div>
                                                 <span class="font-medium">View Details</span>
                                             </a>
 
-                                            <a href="/users/${item.id}/track" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                                            <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
                                                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                                                     <i class="fas fa-map-marker-alt text-green-600 text-xs"></i>
                                                 </div>
                                                 <span class="font-medium">Track Activity</span>
                                             </a>
 
-                                            <a href='#' data-id="${item.id}" class="btn-edit flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
+                                            <a href='#' data-id="${item.id}" data-type="edit" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
                                                 <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                                                     <i class="fas fa-edit text-yellow-600 text-xs"></i>
                                                 </div>
                                                 <span class="font-medium">Edit User</span>
                                             </a>
 
+                                            <a href='#' data-id="${item.id}" data-type="perms" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 transition-colors">
+                                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                    <i class="fas fa-key text-purple-600 text-xs"></i>
+                                                </div>
+                                                <span class="font-medium">Assign Permission</span>
+                                            </a>
+
                                             <div class="border-t border-gray-200 my-1"></div>
                                             
-                                            <button onclick="deleteUser(${item.id})" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                            <button data-id="${item.id}" data-type="delete" class="btn-action w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
                                                 <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
                                                     <i class="fas fa-trash text-red-600 text-xs"></i>
                                                 </div>
@@ -264,145 +284,156 @@
                 $('#table-body').html(html);
             }
 
-            // Render pagination custom
-            function renderPagination(pagination) {
-                let html = '';
-                if (pagination.last_page > 1) {
-                    html += `<div class="flex items-center justify-center gap-2">`;
-
-                    // Prev
-                    if (pagination.current_page > 1) {
-                        html += `<button class="px-3 py-1 border rounded" data-page="${pagination.current_page - 1}">&laquo;</button>`;
-                    }
-
-                    // Pages
-                    for (let i = 1; i <= pagination.last_page; i++) {
-                        let active = (i === pagination.current_page)
-                            ? 'bg-blue-500 text-white'
-                            : 'border hover:bg-gray-100';
-                        html += `<button class="px-3 py-1 rounded ${active}" data-page="${i}">${i}</button>`;
-                    }
-
-                    // Next
-                    if (pagination.current_page < pagination.last_page) {
-                        html += `<button class="px-3 py-1 border rounded" data-page="${pagination.current_page + 1}">&raquo;</button>`;
-                    }
-
-                    html += `</div>`;
-                }
-
-                $('#pagination').html(html);
-            }
-
-            // Render pagination info
-            function renderPaginationInfo(pagination) {
-                if (!pagination || pagination.total === 0) {
-                    $('#pagination-info').html('');
-                    return;
-                }
-
-                let html = `Showing ${pagination.from} to ${pagination.to} of ${pagination.total} results`;
-                $('#pagination-info').html(html);
-            }
-
             // Event klik pagination
             $(document).on('click', '#pagination button', function() {
                 const page = $(this).data('page');
                 loadTable(page);
             });
 
-            // Sorting click handler
-            $(document).on('click', '[data-sort]', function() {
-                const field = $(this).data('sort');
-
-                // Toggle arah sort
-                if (currentSortBy === field) {
-                    currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSortBy = field;
-                    currentSortDir = 'asc';
-                }
-
-                // console.log(currentSortBy, currentSortDir);
-                // Reset semua ikon
-                $('[data-sort] i').removeClass('fa-sort-amount-asc fa-sort-amount-desc text-blue-600').addClass('fa-sort-amount-asc text-gray-400');
-
-                // Update ikon aktif
-                const icon = $(this).find('i');
-                icon.removeClass('fa-sort-amount-asc text-gray-400');
-                if (currentSortDir === 'asc') {
-                    icon.addClass('fa-sort-amount-asc text-blue-600');
-                } else {
-                    icon.addClass('fa-sort-amount-desc text-blue-600');
-                }
-
-                // Reload data dengan sort baru
-                loadTable(1);
-            });
-
             // on click add data
-            $('#formAdd').submit(function(e) {
+            $('#formModal').submit(function(e) {
                 e.preventDefault();
-                let url = "{{ route('admin.setting.role.store') }}";
-                let method = "POST";
-                let data = $('#formAdd').serialize();
+                let url     = $(this).data('url');
+                let method  = $(this).data('type') == 'add' ?  "POST" : "PUT";
+                let data    = $('#formModal').serialize();
+
                 sendData( url, method, data);
             });
 
-            $(document).on('click', '.btn-edit', function(e) {
+            // on click action 
+            $(document).on('click', '.btn-action', function(e) {
                 e.preventDefault();
-                const idx = $(this).data('id');
-                openModalEdit(idx);
+                const   idx  = $(this).data('id');
+                let     type = $(this).data('type');
+                if(type == 'delete'){
+                    deleteData(idx);
+                }else if(type ='perms'){
+                    window.location.href = routes[type].replace(':id', idx);
+                }else{
+                    openModal(idx, type);
+                }
             });
 
-            // on click edit data
-            function openModalEdit(idx) {
+            // modal action
+            function openModal(idx, type) {
                 document.querySelectorAll(".dropdown-menu").forEach(menu => menu.classList.add("hidden"));
-                const overlay = document.getElementById('modalOverlayEdit');
-                const container = document.getElementById('modalContainerEdit');
+                const overlay = document.getElementById('modalOverlay');
+                const container = document.getElementById('modalContainer');
                 
                 overlay.classList.remove('hidden');
                 overlay.classList.add('flex');
-                
+
                 setTimeout(() => {
                     container.classList.remove('scale-95', 'opacity-0');
                     container.classList.add('scale-100', 'opacity-100');
                 }, 10);
 
-                $.ajax({
-                    url: '{{ route('admin.setting.role.edit', ['id' => ':idx']) }}'.replace(':idx', idx),
-                    type: "GET",
-                    beforeSend: function() {
-                        $('#form-body').addClass('hidden');
-                        $('#form-loading').removeClass('hidden');
-                    },
-                    success: function(res) {
-                        
-                        $('#name_edit').val(res.name);
-                        const colorValue = colorMap[res.color] || res.color;
-                        $('#color_theme_edit').val(colorValue).change();
-                    },
-                    error: function(err) {
-                        $('#form-loading').addClass('hidden');
-                        $('#form-body').removeClass('hidden');
-                        closeModalEdit();
-                        showAlert({
-                            type: 'error',
-                            title: 'Gagal!',
-                            message: xhr.responseJSON.message || 'Terjadi kesalahan',
-                            duration: 0
-                        });
-                    }
-                });
+                // modal add
+                if(idx == null && type =='add'){
+                    const icon = $('#modal-title-icon');
+                    $('#modal-title').text('Add New Data');
+                    $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
+                    icon.removeClass().addClass('fas fa-plus text-blue-600');
+                    $('#name').val('');
+                    $('#color-theme').val('').change();
+
+                    //disabled
+                    $('#name').prop('disabled', false);
+                    $('#color-theme').prop('disabled', false);
+                    $('#modal-footer').removeClass('hidden');
+                    $('#btn-submit').removeClass('bg-yellow-600 hover:bg-yellow-700').addClass('bg-blue-600 hover:bg-blue-700');
+                
+                    // form Modal
+                    $('#formModal').data('type', 'add');
+                    $('#formModal').data('url',  routes['add']);
+
+                }else{
+                    $.ajax({
+                        url: routes[type].replace(':id', idx),
+                        type: "GET",
+                        beforeSend: function() {
+                            $('#form-body').addClass('hidden');
+                            $('#form-loading').removeClass('hidden');
+                        },
+                        success: function(res) {
+                            $('#form-body').removeClass('hidden');
+                            $('#form-loading').addClass('hidden');
+                            const icon = $('#modal-title-icon');
+                            if(type == 'edit'){
+                                $('#modal-title').text('Edit Data');
+                                $('#modal-title-bg').removeClass('bg-blue-100').addClass('bg-yellow-100');
+                                icon.removeClass().addClass('fas fa-edit text-yellow-600');
+                                $('#form-body').removeClass('hidden');
+
+                                // form modal
+                                $('#name').val(res.name);
+                                const colorValue = colorMap[res.color] || res.color;
+                                $('#color-theme').val(colorValue).change();
+    
+                                //disabled
+                                $('#name').prop('disabled', false);
+                                $('#color-theme').prop('disabled', false);
+                                $('#form-track').addClass('hidden');
+                                $('#modal-footer').removeClass('hidden');
+                                $('#btn-submit').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-600 hover:bg-yellow-700');
+                                
+                                // form Modal
+                                let urlEdit = '{{ route('admin.setting.role.update', ['id' => ':idx']) }}'.replace(':idx', idx);
+                                $('#formModal').data('type', 'edit');
+                                $('#formModal').data('url', urlEdit);
+                            }else if(type =='show'){
+                                $('#modal-title').text('Show Data');
+                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
+                                icon.removeClass().addClass('fas fa-eye text-blue-600');
+                                $('#form-body').removeClass('hidden');
+                                
+                                // form
+                                $('#name').val(res.name);
+                                const colorValue = colorMap[res.color] || res.color;
+                                $('#color-theme').val(colorValue).change();
+                                
+                                // form disable
+                                $('#name').prop('disabled', true);
+                                $('#color-theme').prop('disabled', true);
+                                $('#modal-footer').addClass('hidden');
+                                $('#form-track').addClass('hidden');
+
+                                // form Modal
+                                $('#formModal').data('type', 'show');
+                                $('#formModal').removeData('url');
+                            }else{
+                                $('#modal-title').text('Show Tracking');
+                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
+                                icon.removeClass().addClass('fas fa-map-marker-alt text-blue-600');
+                                $('#form-body').addClass('hidden');
+                                $('#form-track').removeClass('hidden');
+                                $('#modal-footer').addClass('hidden');
+                                $('#form-track').empty().append(res.data);
+                            }
+
+                        },
+                        error: function(err) {
+                            $('#form-loading').addClass('hidden');
+                            $('#form-body').removeClass('hidden');
+                            closeModalEdit();
+                            showAlert({
+                                type: 'error',
+                                title: 'Gagal!',
+                                message: xhr.responseJSON.message || 'Terjadi kesalahan',
+                                duration: 0
+                            });
+                        }
+                    });
+                }
             }
 
-        });
+        // });
     </script>
 
     {{-- select --}}
     <script>
         $(document).ready(function() {
-            $('#color_theme , #color_theme_edit').select2({
+            $('#color-theme').select2({
                 placeholder: 'Choose a color...',
                 allowClear: true,
                 width: '100%',
@@ -426,17 +457,21 @@
         });
     </script>
 
-    {{-- action --}}
-    <script src="{{asset('js/table-action.js')}}"></script>
-
-    {{-- modal --}}
-    <script src="{{asset('js/modal-add.js')}}"></script>
-
-    {{-- modal --}}
-    <script src="{{asset('js/modal-edit.js')}}"></script>
-
     {{-- send data modal --}}
     <script src="{{asset('js/send-data.js')}}"></script>
 
+    {{-- table action --}}
+    <script src="{{asset('js/table-action.js')}}"></script>
+
+    {{-- table sort --}}
+    <script src="{{asset('js/table-sort.js')}}"></script>
+
+    {{-- modal add edit show track --}}
+    <script src="{{asset('js/modal-add.js')}}"></script>
+
+    {{-- modal delete --}}
+    <script src="{{asset('js/modal-delete.js')}}"></script>
+
+    
 @endpush
 

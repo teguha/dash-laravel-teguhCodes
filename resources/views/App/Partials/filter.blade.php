@@ -45,7 +45,7 @@
         </button>
         <button type="button" 
                 id="reset-filter" 
-                class="px-4 py-2 text-sm font-medium text-white bg-red-400 border border-red-500 rounded-lg hover:bg-red-400 transition-colors">
+                class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-red-500 rounded-lg hover:bg-red-700 transition-colors">
             <i class="fas fa-redo"></i>
             Reset
         </button>
