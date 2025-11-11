@@ -45,6 +45,9 @@ Route::prefix('admin/auth')->name('admin.auth.')->group(function () {
     Route::get('/edit/{id}', [AuthController::class, 'edit'])->name('edit');
     Route::post('/update/{id}', [AuthController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [AuthController::class, 'delete'])->name('delete');
+
+    Route::post('profile-update/{id}', [AuthController::class, 'profileUpdate'])->name('profile.update');
+    Route::post('password-update/{id}', [AuthController::class, 'passwordUpdate'])->name('password.update');
 });
 
 // role 

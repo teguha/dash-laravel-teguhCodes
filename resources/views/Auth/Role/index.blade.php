@@ -13,7 +13,7 @@
                 'icon' => 'fas fa-cog',
                 'parent' => 'Setting',
                 'child1' => 'Role',
-                'child2' => 'All Roles'
+                'child2' => ''
             ]
         ])
 
@@ -219,8 +219,8 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                                    <i class="fas fa-key text-green-600 text-xs mr-2"></i>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.permission_count > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
+                                    <i class="fas fa-key ${item.permission_count > 0 ? 'text-green-600' : 'text-red-600'} text-xs mr-2"></i>
                                     
                                     ${item.permission_count}
                                 </span>
@@ -307,7 +307,7 @@
                 let     type = $(this).data('type');
                 if(type == 'delete'){
                     deleteData(idx);
-                }else if(type ='perms'){
+                }else if(type =='perms'){
                     window.location.href = routes[type].replace(':id', idx);
                 }else{
                     openModal(idx, type);
