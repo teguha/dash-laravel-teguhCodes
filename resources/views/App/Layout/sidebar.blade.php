@@ -23,12 +23,13 @@
     [
       'href' => [
         ['href' => 'admin.auth.profile', 'text_menu' => 'Profile', 'icon' => 'fas fa-user', 'group_link' => 'admin.auth.*' , 'perm' => 'auth-view'],   
-        ['href' => 'admin.auth.index', 'text_menu' => 'Update Password', 'icon' => 'fas fa-user', 'group_link' => 'admin.auth.*', 'perm' => 'auth-view'],
+        ['href' => 'admin.user.index', 'text_menu' => 'User', 'icon' => 'fas fa-user', 'group_link' => 'admin.user.*', 'perm' => 'auth-view'],
+        // ['href' => 'admin.auth.index', 'text_menu' => 'Update Password', 'icon' => 'fas fa-user', 'group_link' => 'admin.auth.*', 'perm' => 'auth-view'],
       ],
-      'group_link' => 'dash.auth.*',
+      'group_link' => 'admin.user.*',
       'text_header' => "Auth",
       'text_menu' => 'Auth',
-      'icon' => 'fas fa-users',
+      'icon' => 'fas fa-shield',
       'is_multi' => true,
     ],
 

@@ -280,6 +280,67 @@
             animation: scaleIn 0.5s ease-out;
         }
     </style>
+
+    <style>
+        /* Style 1: Minimal with Icon */
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #858585;
+            pointer-events: none;
+        }
+
+        .date-input-minimal {
+            width: 100%;
+            padding: 12px 14px 12px 48px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #2d3748;
+            transition: all 0.3s ease;
+            background: white;
+            cursor: pointer;
+        }
+
+        .date-input-minimal:hover {
+            border-color: #cbd5e0;
+        }
+
+        .date-input-minimal:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Custom Daterangepicker Styles */
+        .daterangepicker {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            font-family: inherit;
+        }
+
+        .daterangepicker td.active,
+        .daterangepicker td.active:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .daterangepicker .ranges li.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+
 </head>
 
 <body class="bg-gray-100">
@@ -328,8 +389,8 @@
 
     <!-- 1. jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
 
     <script>
         const sidebar = document.getElementById('sidebar');
@@ -427,6 +488,7 @@
             sidebar.classList.add('-translate-x-full');
         }
     </script>
+
     <script src="{{asset('js/alert.js')}}"></script>
 
     @stack('custom-scripts')
@@ -439,6 +501,35 @@
             // templateResult: formatColor,
             // templateSelection: formatColor,
             minimumResultsForSearch: 5 // Show search box if more than 5 items
+        });
+    </script>
+
+    <!-- Moment.js -->
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+    <!-- Daterangepicker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <!-- Daterangepicker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $(function() {
+
+            $('input[name="datefilter"]').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear'
+                }
+            });
+
+            $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+            });
+
+            $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
         });
     </script>
 

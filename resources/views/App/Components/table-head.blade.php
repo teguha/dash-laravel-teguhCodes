@@ -5,7 +5,7 @@
             <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
         </th>
         <th class="px-6 py-4 text-left border-r border-gray-200">
-            <div class="flex items-center gap-2 font-[sans-serif] text-[12px] font-normal text-gray-500 uppercase tracking-wider cursor-pointer hover:text-blue-600" data-sort="id">
+            <div class="flex items-center gap-2 font-[sans-serif] text-[12px] font-normal text-gray-500 uppercase tracking-wider cursor-pointer hover:text-blue-600">
                 #
             </div>
         </th>

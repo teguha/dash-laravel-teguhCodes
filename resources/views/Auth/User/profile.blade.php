@@ -235,7 +235,7 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-lock text-gray-400"></i>
                                                             </div>
-                                                            <input type="password" id="confirmPassword" name="confirm_password" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Confirm password">
+                                                            <input type="password" id="confirmPassword" name="password_confirmation" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Confirm password">
                                                             <button type="button" onclick="togglePassword('confirmPassword', 'toggleIcon2')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                                                 <i id="toggleIcon2" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
                                                             </button>
@@ -263,7 +263,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                 </div>
             </div>
 

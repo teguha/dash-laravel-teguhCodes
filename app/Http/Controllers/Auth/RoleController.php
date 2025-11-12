@@ -26,6 +26,7 @@ class RoleController extends BaseController
         return view('Auth.Role.index'); // blade utama
     }
 
+    // get data
     public function getData(Request $request)
     {
         $query = Role::query();
@@ -39,11 +40,11 @@ class RoleController extends BaseController
 
         // Filter tambahan (role, status, dsb)
         if ($role = $request->role) {
-            $query->where('name', $role);
+            $query->where('id', $role);
         }
 
-        if($date = $request->date){
-            $query->whereDate('created_at', $date);
+        if(isset($request->date_start) && isset($request->date_end)){
+            $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
         }
 
         // Pagination manual
@@ -91,17 +92,7 @@ class RoleController extends BaseController
         ]);
     }
 
-    public function show($id){
-        $role = Role::findOrFail($id);
-       
-        return response()->json([
-            'id' => $role->id,
-            'name' => $role->name,
-            'permission' => $role->permission,
-            'color' => $role->color,
-        ]);
-    }
-
+    // store data
     public function store(Request $request){
         
         $request->validate([
@@ -139,6 +130,7 @@ class RoleController extends BaseController
 
     }
 
+    // edit data
     public function edit($id){
         $role = Role::find($id);
         return response()->json([
@@ -146,9 +138,9 @@ class RoleController extends BaseController
             'name' => $role->name,
             'color' => $role->color,
         ]);
-        // return view('Dashboard.auth.role.edit', compact('role'));
     }
 
+    // update data
     public function update(Request $request, $id){
         $request->validate([
             'name' => 'required',   
@@ -188,6 +180,7 @@ class RoleController extends BaseController
         ]);
     }
 
+    // delete data
     public function destroy($id){
         $role = Role::findOrFail($id);
         $role->delete();
@@ -201,7 +194,6 @@ class RoleController extends BaseController
     // simple track
     public function track($id){
         $item = Role::find($id);
-        // $item = simple_track($item);
 
         $name_created = $item->re_created_by?->name ?? 'System';
         $time_created = optional($item->created_at)
@@ -215,12 +207,12 @@ class RoleController extends BaseController
                 <div class="space-y-6">
                     
                 <div class="relative flex gap-4">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-bold z-10">
-                        <i class="fa fa-clock text-blue-500"></i>
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center font-bold z-10">
+                        <i class="fa fa-history text-white"></i>
                     </div>
                     <div class="flex-1 pb-8">
-                        <h3 class="font-bold text-gray-900 mb-2">'.e($item->name).'</h3>
-                        <p class="text-sm text-gray-600 mb-2">'.e($name_created).'</p>
+                        <h3 class="font-bold text-gray-900 mb-2"> Create Role '.e($item->name).'</h3>
+                        <p class="text-sm text-gray-600 mb-2"> Create by '.e($name_created).'</p>
                         <p class="text-sm text-gray-500">'.e($time_created).'</p>
                     </div>
                 </div>
@@ -234,12 +226,12 @@ class RoleController extends BaseController
 
             $html .= '  
                         <div class="relative flex gap-4">
-                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-white font-bold z-10">
-                                <i class="fa fa-clock text-blue-500"></i>
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold z-10">
+                                <i class="fa fa-history text-white"></i>
                             </div>
                             <div class="flex-1 pb-8">
-                                <h3 class="font-bold text-gray-900 mb-2">'.e($item->name).'</h3>
-                                <p class="text-sm text-gray-600 mb-2">'.e($name_updated).'</p>
+                                <h3 class="font-bold text-gray-900 mb-2"> Update Role '.e($item->name).'</h3>
+                                <p class="text-sm text-gray-600 mb-2">Update by '.e($name_updated).'</p>
                                 <p class="text-sm text-gray-500">'.e($time_updated).'</p>
                             </div>
                         </div>

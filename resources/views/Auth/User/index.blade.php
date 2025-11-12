@@ -1,7 +1,7 @@
 @extends('App.Layout.index')
 
 @section('title')
-    role-data
+    user-data
 @endsection
 
 @section('content')
@@ -10,9 +10,9 @@
         {{-- breadcrumb --}}
         @include('App.Partials.breadcrumb', [
             'fields' => [
-                'icon' => 'fas fa-cog',
-                'parent' => 'Setting',
-                'child1' => 'Role',
+                'icon' => 'fas fa-shield',
+                'parent' => 'Auth',
+                'child1' => 'User',
                 'child2' => ''
             ]
         ])
@@ -21,8 +21,8 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-4">
             <div class="flex flex-col lg:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">User Role</h2>
-                    <p class="text-sm text-gray-500 mt-1">Manage and view all roles in the system</p>
+                    <h2 class="text-2xl font-bold text-gray-800">User Data</h2>
+                    <p class="text-sm text-gray-500 mt-1">Manage and view all user data in the system</p>
                     <button class="text-sm text-gray-500 mt-2"><i class="fa fas fa-download text-[14px] w-2 mr-4"></i>Format Excel Example</button>
                 </div>
 
@@ -54,7 +54,9 @@
                 // Head Table
                 $columns = [
                     ['field' => 'name', 'label' => 'Name', 'sortable' => true],
-                    ['field' => 'permission', 'label' => 'Permission', 'sortable' => true],
+                    ['field' => 'email', 'label' => 'Email', 'sortable' => false],
+                    ['field' => 'role', 'label' => 'Role', 'sortable' => true],
+                    ['field' => 'status', 'label' => 'Status', 'sortable' => false],
                     ['field' => 'updated_at', 'label' => 'Updated At', 'sortable' => true],
                 ];
             @endphp
@@ -79,7 +81,7 @@
     </main>
 
     {{-- modal --}}
-    @include('Auth.Role.modal')
+    @include('Auth.User.modal')
     @include('App.Partials.delete-modal')
 @endsection
 
@@ -90,44 +92,13 @@
 
     {{-- datatable --}}
     <script>
-        const colorMap = {
-            "#10b981": "green",
-            "#3b82f6": "blue",
-            "#ef4444": "red",
-            "#eab308": "yellow",
-            "#a855f7": "purple",
-            "#000000": "black",
-            "#ffffff": "white",
-            "#6b7280": "gray",
-            "#f97316": "orange",
-            "#ec4899": "pink",
-            "#92400e": "brown",
-            "#14b8a6": "teal",
-            "#84cc16": "lime",
-            "#06b6d4": "cyan",
-            "#6366f1": "indigo",
-            "#8b5cf6": "violet",
-            "#d946ef": "magenta",
-            "#fbbf24": "gold",
-            "#d1d5db": "silver",
-            "#b45309": "bronze",
-            "#059669": "emerald",
-            "#9333ea": "amethyst",
-            "#1e40af": "sapphire",
-            "#dc2626": "ruby",
-            "#65a30d": "peridot",
-            "#f59e0b": "topaz",
-            "#fb7185": "coral",
-            "#7f1d1d": "maroon"
-        };
-
         const routes = {
-            add     : "{{ route('admin.setting.role.store') }}",
-            edit    : "{{ route('admin.setting.role.edit', ['id' => ':id']) }}",
-            show    : "{{ route('admin.setting.role.edit', ['id' => ':id']) }}",
-            track   : "{{ route('admin.setting.role.track', ['id' => ':id']) }}",
-            perms   : "{{ route('admin.setting.role.assignPermission', ['id' => ':id']) }}",
-            delete  : "{{ route('admin.setting.role.delete', ['id' => ':id']) }}"
+            add     : "{{ route('admin.user.store') }}",
+            edit    : "{{ route('admin.user.edit', ['id' => ':id']) }}",
+            show    : "{{ route('admin.user.edit', ['id' => ':id']) }}",
+            track   : "{{ route('admin.user.track', ['id' => ':id']) }}",
+            perms   : "{{ route('admin.user.assignRole', ['id' => ':id']) }}",
+            delete  : "{{ route('admin.user.delete', ['id' => ':id']) }}"
         };
 
         // $(function() {
@@ -146,7 +117,6 @@
 
             // Event ketika user klik "Apply"
             $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
-                // Set tampilan ke input
                 let start = picker.startDate.format('YYYY-MM-DD');
                 let end = picker.endDate.format('YYYY-MM-DD');
 
@@ -175,7 +145,7 @@
             //Fungsi utama load data
             function loadTable(page = 1, start= '' , end = '') {
                 $.ajax({
-                    url: "{{ route('admin.setting.role.data') }}",
+                    url: "{{ route('admin.user.data') }}",
                     type: "GET",
                     data: {
                         search      : $('#search-table').val(),
@@ -242,10 +212,14 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${item.color}-100 text-${item.color}-700">
+                                    ${item.email}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 border-r border-gray-200">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.permission_count > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
-                                    <i class="fas fa-key ${item.permission_count > 0 ? 'text-green-600' : 'text-red-600'} text-xs mr-2"></i>
-                                    
-                                    ${item.permission_count}
+                                    <i class="fas fa-key ${item.role == 'none' ? 'text-red-600' : 'text-green-600'} text-xs mr-2"></i>
+                                    ${item.role}
                                 </span>
                             </td>
                             ${item.created_at}
@@ -269,7 +243,7 @@
 
                                             <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
                                                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-history text-green-600 text-xs"></i>
+                                                    <i class="fas fa-map-marker-alt text-green-600 text-xs"></i>
                                                 </div>
                                                 <span class="font-medium">Track Activity</span>
                                             </a>
@@ -355,12 +329,10 @@
                 if(idx == null && type =='add'){
                     const icon = $('#modal-title-icon');
                     $('#modal-title').text('Add New Data');
-                    $('#modal-title-bg').removeClass('bg-yellow-100 bg-green-100').addClass('bg-blue-100');
+                    $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
                     icon.removeClass().addClass('fas fa-plus text-blue-600');
                     $('#name').val('');
                     $('#color-theme').val('').change();
-                    $('#form-track').addClass('hidden');
-                    $('#form-body').removeClass('hidden');
 
                     //disabled
                     $('#name').prop('disabled', false);
@@ -428,8 +400,8 @@
                                 $('#formModal').removeData('url');
                             }else{
                                 $('#modal-title').text('Show Tracking');
-                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-green-100');
-                                icon.removeClass().addClass('fas fa-history text-green-600');
+                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
+                                icon.removeClass().addClass('fas fa-map-marker-alt text-blue-600');
                                 $('#form-body').addClass('hidden');
                                 $('#form-track').removeClass('hidden');
                                 $('#modal-footer').addClass('hidden');
@@ -455,30 +427,14 @@
         // });
     </script>
 
-    {{-- select --}}
     <script>
         $(document).ready(function() {
-            $('#color-theme').select2({
-                placeholder: 'Choose a color...',
+            $('#role-select').select2({
+                placeholder: 'Select role...',
                 allowClear: true,
                 width: '100%',
-                templateResult: formatColor,
-                templateSelection: formatColor,
                 minimumResultsForSearch: 5 // Show search box if more than 5 items
             });
-
-            // Custom template untuk menampilkan color badge
-            function formatColor(color) {
-                if (!color.id) {
-                    return color.text;
-                }
-                
-                var colorCode = $(color.element).data('color');
-                var $color = $(
-                    '<span><span class="color-badge" style="background-color: ' + colorCode + ';"></span>' + color.text + '</span>'
-                );
-                return $color;
-            }
         });
     </script>
 
