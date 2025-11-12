@@ -26,10 +26,21 @@ function sendData(url, method, data) {
             $('#form-loading').addClass('hidden');
             $('#form-body').removeClass('hidden');
             closeModal();
+            let errMsg = '';
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                // Ambil semua pesan error dari Laravel
+                let errors = xhr.responseJSON.errors;
+                // Gabungkan semua pesan error jadi satu string dengan <br>
+                errMsg = Object.values(errors).flat().join('<br>');
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                errMsg = xhr.responseJSON.message;
+            } else {
+                errMsg = 'Terjadi kesalahan yang tidak diketahui.';
+            }
             showAlert({
                 type: 'error',
                 title: 'Gagal!',
-                message: xhr.responseJSON.message || 'Terjadi kesalahan',
+                message: errMsg || 'Terjadi kesalahan',
                 duration: 0
             });
         }

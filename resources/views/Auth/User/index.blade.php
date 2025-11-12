@@ -55,6 +55,7 @@
                 $columns = [
                     ['field' => 'name', 'label' => 'Name', 'sortable' => true],
                     ['field' => 'email', 'label' => 'Email', 'sortable' => false],
+                    ['field' => 'phone', 'label' => 'Phone', 'sortable' => false],
                     ['field' => 'role', 'label' => 'Role', 'sortable' => true],
                     ['field' => 'status', 'label' => 'Status', 'sortable' => false],
                     ['field' => 'updated_at', 'label' => 'Updated At', 'sortable' => true],
@@ -204,25 +205,44 @@
                                 <input type="checkbox" value="${item.id}" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="text-sm font-semibold text-gray-900">${ startNo + i}</span>
+                                <span class="text-sm font-semibold text-gray-600">${ startNo + i}</span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${item.color}-100 text-${item.color}-700">
-                                    ${item.name}
-                                </span>
+                                <div class="flex items-center space-x-1">
+                                    <!-- Initial berbentuk lingkaran -->
+                                    <span class="flex items-center justify-center w-8 h-8 text-[12px] rounded-full bg-${item.color}-500 text-white font-semibold">
+                                    ${item.initial}
+                                    </span>
+
+                                    <!-- Nama -->
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold  text-gray-600">
+                                        ${item.name}
+                                    </span>
+                                </div>
                             </td>
+
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${item.color}-100 text-${item.color}-700">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold  text-gray-600">
                                     ${item.email}
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.permission_count > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
-                                    <i class="fas fa-key ${item.role == 'none' ? 'text-red-600' : 'text-green-600'} text-xs mr-2"></i>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold  text-gray-600">
+                                    ${item.phone}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 border-r border-gray-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.role != 'none' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
+                                    
                                     ${item.role}
                                 </span>
                             </td>
-                            ${item.created_at}
+                            <td class="px-6 py-4 border-r border-gray-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
+                                    
+                                    ${item.status}
+                                </span>
+                            </td>
                             ${item.updated_at}
                             <td class="px-6 py-4">
                                 <div class="flex justify-center">
@@ -294,6 +314,7 @@
                 let method  = $(this).data('type') == 'add' ?  "POST" : "PUT";
                 let data    = $('#formModal').serialize();
 
+                console.log(url, method, data);
                 sendData( url, method, data);
             });
 

@@ -206,7 +206,7 @@ if (!function_exists('short_text')) {
 if (!function_exists('random_color')) {
     function random_color()
     {
-        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'indigo', 'gray', 'cyan', 'brown', 'emerland'];
+        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink',  'cyan'];
         return $colors[array_rand($colors)];
     }
 }

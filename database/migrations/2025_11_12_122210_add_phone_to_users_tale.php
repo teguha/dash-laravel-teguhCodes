@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            // $table->unsignedBigInteger('role_id')->nullable()->after('email');
+            $table->string('phone', 50)->nullable()->after('email');
         });
     }
 
@@ -28,7 +28,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            // $table->dropColumn('role_id');
+            $table->dropColumn('phone');
         });
     }
 };

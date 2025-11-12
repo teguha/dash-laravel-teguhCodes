@@ -59,7 +59,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2 text-[14px]">
                         <i class="fas fa-key text-gray-400 mr-2"></i>Password
                     </label>
-                    <input type="text" placeholder="+6285.." id="password" name="password" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
+                    <input type="text" placeholder="password" id="password" name="password" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
                 </div>
 
                 @php 

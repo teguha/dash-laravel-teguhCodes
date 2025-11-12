@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Request;
+// use Symfony\Component\HttpFoundation\Request;
 
 class AuthController extends BaseController
 {

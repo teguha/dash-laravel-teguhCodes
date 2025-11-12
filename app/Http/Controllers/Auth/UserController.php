@@ -29,9 +29,12 @@ class UserController extends BaseController
     // get data
     public function getData(Request $request)
     {
-        $query = User::select('users.*')
-            ->join('set_role', 'set_role.id', '=', 'users.role_id') // sesuaikan foreign key-nya
-            ->with('re_role');
+        // $query = User::select('users.*')
+        //     ->join('set_role', 'set_role.id', '=', 'users.role_id') // sesuaikan foreign key-nya
+        //     ->with('re_role');
+
+         $query = User::
+            with('re_role');
 
         // 🔍 Filter pencarian
         if ($search = $request->search) {
@@ -65,7 +68,12 @@ class UserController extends BaseController
 
         // Jalankan query dengan orderBy, baru paginate
         if($sortBy == 'role'){
-            $data = $query->orderBy('set_role.name', $sortDir)
+            // $data = $query->orderBy($item->re_role, $sortDir)
+            //    ->paginate($perPage, ['*'], 'page', $page);
+             $data = $query->whereHas('re_role', function ($q) use ($sortDir) {
+
+                $q->orderBy('name', $sortDir);
+             })
                ->paginate($perPage, ['*'], 'page', $page);
         }else{
             $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
@@ -76,8 +84,12 @@ class UserController extends BaseController
                 return [
                     'id' => $item->id,
                     'name' => ucfirst($item->name),
+                    'initial' => get_initial($item->name),
+                    'color' => random_color(),
                     'email' => $item->email,
-                    'role' => $item->re_role->name,
+                    'role' => $item->re_role? $item->re_role->name : 'none',
+                    'status' => ucfirst($item->status),
+                    'phone' => $item->phone ?? '-',
                     'updated_at' => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
                 ];
             }),
@@ -102,9 +114,11 @@ class UserController extends BaseController
 
         if($validator->fails()){
             return response()->json([
-                'success'   => false,
-                'message'   => 'Failed add data'
-            ]);
+                'success' => false,
+                'message' => 'Failed to add data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -115,6 +129,7 @@ class UserController extends BaseController
                 'email'    => $request->email,
                 'phone'    => $request->phone,
                 'password' => Hash::make($request->password),
+                'role_id'  => $request->role,
             ]);
 
             DB::commit();
@@ -128,7 +143,7 @@ class UserController extends BaseController
             DB::rollBack(); 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed add data',
+                'message' => 'Failed add data'.$e->getMessage(),
             ], 500);
         }
     }
@@ -160,6 +175,7 @@ class UserController extends BaseController
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'phone'    => $request->phone,
+                'role_id'  => $request->role,
             ]);
             DB::commit(); 
 
