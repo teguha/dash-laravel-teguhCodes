@@ -1,0 +1,31 @@
+// create tabel
+php artisan make:migration create_users_table
+
+// menambah/menghapus kolom pada tabel yang sudah ada, gunakan perintah:
+php artisan make:migration add_phone_to_users_table --table=users
+
+// example for update
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('phone')->nullable()->after('email');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('phone');
+        });
+    }
+};
+
+
+// rollback 1 langkah terakhir:
+php artisan migrate:rollback

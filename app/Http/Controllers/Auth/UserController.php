@@ -16,23 +16,83 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 
-class AuthController extends BaseController
+class UserController extends BaseController
 {
 
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function index(){
-
+    public function index()
+    {
+        return view('Auth.User.index'); // blade utama
     }
 
-    public function login(){
+    // get data
+    public function getData(Request $request)
+    {
+        $query = User::select('users.*')
+            ->join('set_role', 'set_role.id', '=', 'users.role_id') // sesuaikan foreign key-nya
+            ->with('re_role');
 
+        // 🔍 Filter pencarian
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%");
+            });
+        }
+
+        // Filter tambahan (role, status, dsb)
+        if ($role = $request->role) {
+            $query->where('role_id', $role);
+        }
+
+        if(isset($request->date_start) && isset($request->date_end)){
+            $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
+        }
+
+        // Pagination manual
+        $perPage = 10;
+        $page = $request->get('page', 1);
+
+        $sortBy = match($request->sort_by ?? '') {
+            'name' => 'name',
+            'updated' => 'updated_at',
+            'role' => 'role',
+            default => 'id',
+        };
+
+        // Tentukan arah sort, default 'desc'
+        $sortDir = $request->sort_dir ?? 'desc';
+
+        // Jalankan query dengan orderBy, baru paginate
+        if($sortBy == 'role'){
+            $data = $query->orderBy('set_role.name', $sortDir)
+               ->paginate($perPage, ['*'], 'page', $page);
+        }else{
+            $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
+        }
+
+        return response()->json([
+            'data' =>$data->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => ucfirst($item->name),
+                    'email' => $item->email,
+                    'role' => $item->re_role->name,
+                    'updated_at' => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
+                ];
+            }),
+            'pagination' => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'last_page' => $data->lastPage(),
+                'total' => $data->total(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
+        ]);
     }
 
-    public function show(){
-
-    }
-
+    // store data
     public function store(Request $request){
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:255',
@@ -77,6 +137,7 @@ class AuthController extends BaseController
 
     }
 
+    // update data
     public function update(Request $request, $id){
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:255',
@@ -118,40 +179,4 @@ class AuthController extends BaseController
         
     }
 
-    public function profile(){
-        $user = Auth::user();
-
-        return view('Auth.User.profile');
-    }
-
-    public function updatePassword(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'success'   => false,
-                'message'   => 'Failed update data'
-            ]);
-        }
-
-        $user = Auth::user();
-
-        // if (!Hash::check($request->current_password, $user->password)) {
-        //     return response()->json([
-        //         'message' => 'Current password is incorrect'
-        //     ], 403);
-        // }
-
-        $user->update([
-            'password' => Hash::make($request->password)
-        ]);
-
-        return response()->json([
-            'success'   => true,
-            'message'   => 'Password updated successfully'
-        ]);
-    }
 }

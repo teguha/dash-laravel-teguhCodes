@@ -18,15 +18,13 @@
         @php
             $roles =  App\Models\Auth\Role::all();
         @endphp
+
         <div>
             <select id="filter-role" class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                
                 <option value="">All Roles</option>
                 @forEach($roles as $role)
                     <option value="{{$role->id}}">{{ucfirst($role->name)}}</option>
                 @endforeach
-                {{-- <option value="manager">Manager</option>
-                <option value="user">User</option> --}}
             </select>
         </div>
     @endif
@@ -34,10 +32,17 @@
 
     <!-- Filter Date -->
     @if(!empty($fields['date']))
-        <div>
-            <input type="date" 
-                id="filter-date" 
-                class="block w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        <div class="date-input-wrapper">
+            <svg class="date-input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <input type="text" 
+                id="filter-date"
+                name="datefilter" 
+                placeholder="Select date range"
+                class="date-input-minimal"
+                readonly
+                >
         </div>
     @endif
 

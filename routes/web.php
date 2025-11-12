@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 //Auth
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RoleController;
+use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\Auth\PermissionController;
 use App\Http\Controllers\Auth\ApprovalController;
 use App\Models\Auth\Role;
@@ -46,9 +47,30 @@ Route::prefix('admin/auth')->name('admin.auth.')->group(function () {
     Route::post('/update/{id}', [AuthController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [AuthController::class, 'delete'])->name('delete');
 
-    Route::post('profile-update/{id}', [AuthController::class, 'profileUpdate'])->name('profile.update');
-    Route::post('password-update/{id}', [AuthController::class, 'passwordUpdate'])->name('password.update');
+    Route::post('profile-update/{id}', [AuthController::class, 'update'])->name('profile.update');
+    Route::post('password-update/{id}', [AuthController::class, 'updatePassword'])->name('password.update');
 });
+
+
+// user
+Route::prefix('admin/user')->name('admin.user.')->group(function () {
+    Route::get('/index', [UserController::class, 'index'])->name('index');
+    Route::get('/data', [UserController::class, 'getData'])->name('data');
+    Route::post('/store', [UserController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
+    Route::post('/update/{id}', [UserController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [UserController::class, 'delete'])->name('delete');
+    Route::get('/track/{id}', [UserController::class, 'track'])->name('track');
+    // Route::post('/create', [RoleController::class, 'create'])->name('create');
+    Route::post('/store', [UserController::class, 'store'])->name('store');
+    Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
+    Route::get('/assign-role/{id}', [UserController::class, 'assignRole'])->name('assignRole');
+    Route::post('/store-role/{id}', [UserController::class, 'storeRole'])->name('storeRole');
+    Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
+    Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('delete');
+});
+
+
 
 // role 
 Route::prefix('admin/setting-role')->name('admin.setting.role.')->group(function () {
