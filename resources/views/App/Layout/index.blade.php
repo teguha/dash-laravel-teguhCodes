@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> --}}
     <!-- CDN untuk Select2 - Tambahkan di head section -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="{{asset('js/tailwind.js')}}"></script>
+    <link href="{{asset('css/select2.css')}}" rel="stylesheet" />
+    {{-- <link href="{{asset('css/font-awesome.css')}}" rel="stylesheet" /> --}}
+    {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
     <!-- Custom CSS untuk styling Select2 -->
@@ -311,18 +314,16 @@
         <!-- Header -->
         @include('App.Layout.header')
 
-        {{-- @yield('breadcrumb') --}}
         <!-- Content Area -->
         @yield('content')
 
         <!-- Footer -->
-
-
         <div id="footerContent" class="p-6">
             <div class="bg-gray flex flex-row justify-center border-t border-gray-200">
                 <p class="text text-sm text-gray-400 mt-4">Copyright © 2025 &nbsp;<i class="fas fa-circle text-[10px] w-4 h-2"></i> Made by TeguhCodes</p>
             </div>
         </div> 
+        
     </div>
 
     <!-- 1. jQuery -->

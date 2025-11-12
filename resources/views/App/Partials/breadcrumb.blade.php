@@ -13,7 +13,7 @@
             <li>
                 <div class="flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                    <a href="#" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">{{$fields['child1']}}</a>
+                    <a href="#" class="ml-1 text-sm font-medium {{ $fields['child2'] == '' ? 'text-blue-700' : 'text-gray-700' }} hover:text-blue-600 md:ml-2">{{$fields['child1']}}</a>
                 </div>
             </li>
         @endif
@@ -22,7 +22,7 @@
             <li aria-current="page">
                 <div class="flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                    <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{$fields['child2']}}</span>
+                    <span class="ml-1 text-sm font-medium text-blue-500 md:ml-2">{{$fields['child2']}}</span>
                 </div>
             </li>
         @endif

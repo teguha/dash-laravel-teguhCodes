@@ -31,8 +31,12 @@ use App\Models\Auth\Permission;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('Auth.login');
 });
+
+Route::post('/login-process', [AuthController::class, 'login'])->name('auth.login');
+Route::post('/check-email-login', [AuthController::class, 'checkEmailLogin'])->name('auth.check.login');
+
 
 
 // user
@@ -149,5 +153,5 @@ Route::get('/ajax/search-sub-bagian', [SubBagianController::class, 'searchSubBag
 
 
 Route::get('/home', function () {
-    return view('Template.table');
+    return view('Auth.login');
 })->name('dash.home');

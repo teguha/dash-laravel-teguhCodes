@@ -185,14 +185,12 @@
                                                             <input type="date" name="dob" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                                                         </div>
                                                     </div>
-    
                                                 </div>
-    
                                             </div>
     
                                             <div>
                                                 <!-- <h3 class="font-bold text-gray-900 mb-4 text-red-600">Danger Zone</h3> -->
-                                                <div class="space-y-3">
+                                                <div class="space-y-3 mt-4">
                                                     <button class="w-full p-4 border-2 border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
                                                         <i class="fas fa-file mr-2"></i>
                                                         Update Profile
@@ -230,7 +228,7 @@
     
                                                     <!-- Confirm Password -->
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                        <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">
                                                             Confirm Password <span class="text-red-500">*</span>
                                                         </label>
                                                         <div class="relative">
