@@ -52,10 +52,10 @@ class RoleController extends BaseController
         $page = $request->get('page', 1);
 
         $sortBy = match($request->sort_by ?? '') {
-            'name' => 'name',
-            'updated' => 'updated_at',
-            'permission' => 'permission',
-            default => 'id',
+            'name'          => 'name',
+            'updated'       => 'updated_at',
+            'permission'    => 'permission',
+            default         => 'id',
         };
 
         // Tentukan arah sort, default 'desc'
@@ -74,20 +74,20 @@ class RoleController extends BaseController
                 $count = is_array($permissions) ? count($permissions) : 0;
 
                 return [
-                    'id' => $item->id,
-                    'name' => ucfirst($item->name),
-                    'color' => $item->color,
-                    'permission_count' => $count,
-                    'updated_at' => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
+                    'id'                => $item->id,
+                    'name'              => ucfirst($item->name),
+                    'color'             => $item->color,
+                    'permission_count'  => $count,
+                    'updated_at'        => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
                 ];
             }),
             'pagination' => [
-                'current_page' => $data->currentPage(),
-                'per_page' => $data->perPage(),
-                'last_page' => $data->lastPage(),
-                'total' => $data->total(),
-                'from' => $data->firstItem(),
-                'to' => $data->lastItem(),
+                'current_page'          => $data->currentPage(),
+                'per_page'              => $data->perPage(),
+                'last_page'             => $data->lastPage(),
+                'total'                 => $data->total(),
+                'from'                  => $data->firstItem(),
+                'to'                    => $data->lastItem(),
             ]
         ]);
     }
@@ -118,8 +118,8 @@ class RoleController extends BaseController
         }
 
         Role::create([
-            'name' => $request->name,
-            'slug' => $slug,
+            'name'  => $request->name,
+            'slug'  => $slug,
             'color' => $request->color_theme,
         ]); 
 
@@ -134,8 +134,8 @@ class RoleController extends BaseController
     public function edit($id){
         $role = Role::find($id);
         return response()->json([
-            'id' => $role->id,
-            'name' => $role->name,
+            'id'    => $role->id,
+            'name'  => $role->name,
             'color' => $role->color,
         ]);
     }
@@ -143,8 +143,8 @@ class RoleController extends BaseController
     // update data
     public function update(Request $request, $id){
         $request->validate([
-            'name' => 'required',   
-            'color_theme' => 'required'
+            'name'          => 'required',   
+            'color_theme'   => 'required'
         ]);
 
         if(empty($request->color_theme)){
@@ -169,8 +169,8 @@ class RoleController extends BaseController
 
         $role = Role::findOrFail($id);
         $role->update([
-            'name' => $request->name,
-            'slug' => $slug,
+            'name'  => $request->name,
+            'slug'  => $slug,
             'color' => $request->color_theme,
         ]);
 
@@ -252,9 +252,9 @@ class RoleController extends BaseController
     }
 
     public function assignPermission($id) {
-        $permissions = Permission::all();
-        $role = Role::findOrFail($id);
-        $lastPermissions = json_decode($role->permission ?? '[]', true);
+        $permissions        = Permission::all();
+        $role               = Role::findOrFail($id);
+        $lastPermissions    = json_decode($role->permission ?? '[]', true);
         return view('Dashboard.auth.role.permission-assign', compact('id','permissions', 'role', 'lastPermissions'));
     }
 

@@ -43,18 +43,22 @@ class AuthController extends BaseController
     }
 
     public function login(Request $request){
-        $user = User::where('email', $request->email)->first();
-        if(!empty($user)){
+        
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials, $request->remember)) {
+            $request->session()->regenerate();
             return response()->json([
                 'success' => true,
-                'message' => 'Email find'
-            ]);
-        }else{
-            return response()->json([
-                'success' => false,
-                'message' => 'Email false'
+                'message' => 'Login success',
+                'route'   => route('admin.setting.role.index')  
             ]);
         }
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid email or password'
+        ], 401);
+
     }
 
     public function show(){
@@ -88,8 +92,8 @@ class AuthController extends BaseController
             DB::commit();
 
             return response()->json([
-                'status' => true,
-                'message' => 'Success add data',
+                'status'    => true,
+                'message'   => 'Success add data',
             ], 201);
 
         } catch (\Exception $e) {

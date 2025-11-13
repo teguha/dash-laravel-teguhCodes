@@ -24,7 +24,7 @@
 
                 <!-- Login Form -->
                 <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                    <form id="loginForm" class="space-y-6" method="POST">
+                    <form id="loginForm" action="{{ route('auth.login') }}" class="space-y-6" method="POST">
                         @csrf
                         <!-- Email Input -->
                         <div>
@@ -210,20 +210,20 @@
                     if(response.success) {
                         $('#forget-password-form').removeClass('hidden');
                         $('#password-form').removeClass('hidden');
-                        $('btn-submit').removeClass('from-gray-500 to-gray-600').addClass('from-blue-500 to-blue-600');
-                        $('btn-submit').prop('disabled', false);
+                        $('#btn-submit').removeClass('from-gray-500 to-gray-600').addClass('from-blue-500 to-blue-600');
+                        $('#btn-submit').prop('disabled', false);
                     }else{
                         $('#password-form').addClass('hidden');
                         $('#forget-password-form').addClass('hidden');
-                        $('btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
-                        $('btn-submit').prop('disabled', true);
+                        $('#btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
+                        $('#btn-submit').prop('disabled', true);
                     }
                 },
                 error: function(xhr) {
                     $('#forget-password-form').addClass('hidden');
                     $('#password-form').addClass('hidden');
-                    $('btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
-                    $('btn-submit').prop('disabled', true);
+                    $('#btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
+                    $('#btn-submit').prop('disabled', true);
                 }
             });
         }
@@ -246,26 +246,56 @@
         // Form Submit Handler
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Show loading overlay
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            
-            // Simulate login process
-            setTimeout(() => {
-                // In production, this would be an actual API call
-                // For demo, we'll show success and redirect
-                alert('Login successful! Redirecting to dashboard...');
-                document.getElementById('loadingOverlay').classList.add('hidden');
-                
-                // Redirect to dashboard (uncomment in production)
-                // window.location.href = '/dashboard';
-            }, 1500);
+            let data    = $('#loginForm').serialize();
+            let method  = 'POST';
+            let url     = "{{ route('auth.login') }}";
+            sendData( url, method, data);
+        
         });
 
-        // Demo credentials hint
-        console.log('Demo credentials:');
-        console.log('Email: admin@example.com');
-        console.log('Password: password123');
+        function sendData(url, method, data) {
+            $.ajax({
+                url: url,
+                type: method,
+                data: data,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    document.getElementById('loadingOverlay').classList.remove('hidden');
+                },
+                success: function(response) {
+                    if(response.success) {
+                        window.location.href = response.route;
+                    }
+                },
+                error: function(xhr) {
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                    }, 1500);
+
+                    let errMsg = '';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        let errors = xhr.responseJSON.errors;
+                        errMsg = Object.values(errors).flat().join('<br>');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    } else {
+                        errMsg = 'Terjadi kesalahan yang tidak diketahui.';
+                    }
+
+                    showAlert({
+                        type: 'error',
+                        title: 'Gagal!',
+                        message: errMsg || 'Terjadi kesalahan',
+                        duration: 0
+                    });
+                }
+            });
+        }
+        
     </script>
+
+    
 </body>
 </html>

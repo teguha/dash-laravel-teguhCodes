@@ -33,8 +33,7 @@ class UserController extends BaseController
         //     ->join('set_role', 'set_role.id', '=', 'users.role_id') // sesuaikan foreign key-nya
         //     ->with('re_role');
 
-         $query = User::
-            with('re_role');
+        $query = User::with('re_role');
 
         // 🔍 Filter pencarian
         if ($search = $request->search) {
@@ -57,10 +56,10 @@ class UserController extends BaseController
         $page = $request->get('page', 1);
 
         $sortBy = match($request->sort_by ?? '') {
-            'name' => 'name',
-            'updated' => 'updated_at',
-            'role' => 'role',
-            default => 'id',
+            'name'      => 'name',
+            'updated'   => 'updated_at',
+            'role'      => 'role',
+            default     => 'id',
         };
 
         // Tentukan arah sort, default 'desc'
@@ -82,24 +81,24 @@ class UserController extends BaseController
         return response()->json([
             'data' =>$data->map(function ($item) {
                 return [
-                    'id' => $item->id,
-                    'name' => ucfirst($item->name),
-                    'initial' => get_initial($item->name),
-                    'color' => random_color(),
-                    'email' => $item->email,
-                    'role' => $item->re_role? $item->re_role->name : 'none',
-                    'status' => ucfirst($item->status),
-                    'phone' => $item->phone ?? '-',
-                    'updated_at' => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
+                    'id'            => $item->id,
+                    'name'          => ucfirst($item->name),
+                    'initial'       => get_initial($item->name),
+                    'color'         => random_color(),
+                    'email'         => $item->email,
+                    'role'          => $item->re_role? $item->re_role->name : 'none',
+                    'status'        => ucfirst($item->status),
+                    'phone'         => $item->phone ?? '-',
+                    'updated_at'    => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
                 ];
             }),
             'pagination' => [
-                'current_page' => $data->currentPage(),
-                'per_page' => $data->perPage(),
-                'last_page' => $data->lastPage(),
-                'total' => $data->total(),
-                'from' => $data->firstItem(),
-                'to' => $data->lastItem(),
+                'current_page'  => $data->currentPage(),
+                'per_page'      => $data->perPage(),
+                'last_page'     => $data->lastPage(),
+                'total'         => $data->total(),
+                'from'          => $data->firstItem(),
+                'to'            => $data->lastItem(),
             ]
         ]);
     }
