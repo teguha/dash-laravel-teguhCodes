@@ -204,10 +204,11 @@ if (!function_exists('short_text')) {
 
 // Generate random color
 if (!function_exists('random_color')) {
-    function random_color()
+    function random_color($id)
     {
-        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink',  'cyan', 'orange', 'brown'];
-        return $colors[array_rand($colors)];
+        $val = $id < 10 ? $id : $id % 10;
+        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink',  'cyan', 'orange', 'brown', 'red'];
+        return $colors[$val];
     }
 }
 
