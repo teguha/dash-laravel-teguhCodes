@@ -65,55 +65,56 @@ class AuthController extends BaseController
 
     }
 
-    public function store(Request $request){
-        $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users',
-            'phone'     => 'required',
-        ]);
+    // public function store(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'name'      => 'required|string|max:255',
+    //         'email'     => 'required|email|unique:users',
+    //         'phone'     => 'required',
+    //     ]);
 
-        if($validator->fails()){
-            return response()->json([
-                'success'   => false,
-                'message'   => 'Failed add data'
-            ]);
-        }
+    //     if($validator->fails()){
+    //         return response()->json([
+    //             'success'   => false,
+    //             'message'   => 'Failed add data'
+    //         ]);
+    //     }
 
-        DB::beginTransaction();
-        try {
-            // Simpan user baru
-            User::create([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'phone'    => $request->phone,
-                'password' => Hash::make($request->password),
-            ]);
+    //     DB::beginTransaction();
+    //     try {
+    //         // Simpan user baru
+    //         User::create([
+    //             'name'     => $request->name,
+    //             'email'    => $request->email,
+    //             'phone'    => $request->phone,
+    //             'password' => Hash::make($request->password),
+    //         ]);
 
-            DB::commit();
+    //         DB::commit();
 
-            return response()->json([
-                'status'    => true,
-                'message'   => 'Success add data',
-            ], 201);
+    //         return response()->json([
+    //             'status'    => true,
+    //             'message'   => 'Success add data',
+    //         ], 201);
 
-        } catch (\Exception $e) {
-            DB::rollBack(); 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed add data',
-            ], 500);
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         DB::rollBack(); 
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed add data',
+    //         ], 500);
+    //     }
+    // }
 
     public function edit(){
 
     }
 
-    public function update(Request $request, $id){
+    public function profileUpdate(Request $request){
         $validator = Validator::make($request->all(), [
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users',
             'phone'     => 'required',
+            'date_birth' => 'required'
         ]);
 
         if($validator->fails()){
@@ -123,7 +124,6 @@ class AuthController extends BaseController
             ]);
         }
 
-
         DB::beginTransaction();
         try {
             $user = User::find($id);
@@ -131,6 +131,8 @@ class AuthController extends BaseController
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'phone'    => $request->phone,
+                'date_birth' => $request->date_birth
+
             ]);
             DB::commit(); 
 
@@ -152,8 +154,20 @@ class AuthController extends BaseController
 
     public function profile(){
         $user = Auth::user();
+        $role = Role::find($user->role_id);
+        return view('Auth.User.profile', compact(['user', 'role']));
+    }
 
-        return view('Auth.User.profile');
+    public function user(Request $request){
+        $user = Auth::user();
+        return response()->json([  
+            'success' => true,
+            'name'    => $user->name,
+            'email'   => $user->email,
+            'birth'   => format_date($user->date_birth, 'd M Y'),
+            'phone'   => $user->phone
+        ]);
+    
     }
 
     public function updatePassword(Request $request)

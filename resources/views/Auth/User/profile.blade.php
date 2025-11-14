@@ -28,30 +28,30 @@
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" id="detail-user">
                             <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center" id="user-name">
                                 <i class="fas fa-user-circle mr-2 text-blue-500"></i>
-                                Teguh Arthana
+                                {{ ucfirst($user->name)}}
                             </h2>
                             <p class="text-gray-600 text-sm leading-relaxed mb-4" id="user-desc">
-                                Main Director at PT Pandawa 5 With Role Super User
+                                Main Director at PT Pandawa 5 With Role {{ucfirst($role->name)}}
                                 <!-- Passionate designer with 8+ years of experience creating beautiful and functional digital products. Love working with creative teams and solving complex problems. -->
                             </p>
                             <div class="space-y-3">
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-envelope w-5 text-gray-400"></i>
-                                    <span class="text-gray-600 ml-3" id="email-user">john.doe@example.com</span>
+                                    <span class="text-gray-600 ml-3" id="email-user">{{$user->email}}</span>
                                 </div>
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-phone w-5 text-gray-400"></i>
-                                    <span class="text-gray-600 ml-3" id="phone-user">+62 812-3456-7890</span>
+                                    <span class="text-gray-600 ml-3" id="phone-user">{{$user->phone ?? '-'}}</span>
                                 </div>
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-globe w-5 text-gray-400"></i>
-                                    <span class="text-gray-600 ml-3" id="website-user">johndoe.com</span>
+                                    <span class="text-gray-600 ml-3" id="website-user">pandawa5.com</span>
                                 </div>
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-birthday-cake w-5 text-gray-400"></i>
-                                    <span class="text-gray-600 ml-3" id="birth-date">March 15, 1990</span>
+                                    <span class="text-gray-600 ml-3" id="birth-date">{{ $user->date_birtth ? date_birth($user->date_birth, 'd M Y') : '-'}}</span>
                                 </div>
-                                <input type="hidden" id="id-profile" name="id-profile" value="1">
+                                <input type="hidden" id="id-profile" name="id-profile" value="{{$user->id}}">
                             </div>
                         </div>
                     </div>
@@ -143,7 +143,7 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-user text-gray-400"></i>
                                                             </div>
-                                                            <input type="text" name="fullname" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Enter full name">
+                                                            <input type="text" name="fullname" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" value="{{$user->name}}" placeholder="Enter full name">
                                                         </div>
                                                     </div>
     
@@ -156,7 +156,7 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-envelope text-gray-400"></i>
                                                             </div>
-                                                            <input type="email" name="email" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="example@email.com">
+                                                            <input type="email" name="email" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="example@email.com" value="{{$user->email}}">
                                                         </div>
                                                     </div>
     
@@ -169,7 +169,7 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-phone text-gray-400"></i>
                                                             </div>
-                                                            <input type="tel" name="phone" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="+62 812-3456-7890">
+                                                            <input type="tel" name="phone" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="+62 812-3456-7890" value ="{{$user->phone}}">
                                                         </div>
                                                     </div>
     
@@ -182,9 +182,10 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-calendar text-gray-400"></i>
                                                             </div>
-                                                            <input type="date" name="dob" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                            <input type="date" name="date_birth" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                                                         </div>
                                                     </div>
+
                                                 </div>
                                             </div>
     
@@ -323,7 +324,7 @@
         // load when update data user
         function loadDataUser(){
             $.ajax({
-                url     : 'update-profile-user/{id}',
+                url     : 'get-data-user',
                 type    : 'GET',
                 beforeSend: function() {
                     $('#detail-user').addClass('hidden');
@@ -335,12 +336,12 @@
                     // update data
                     $('#email-user').text(res.email);
                     $('#phone-user').text(res.phone);
-                    $('#website-user').text(res.website);
                     $('#birth-date').text(res.birth);
-                    $('#id-profile').val(res.id);
+                    // $('#website-user').text(res.website);
+                    // $('#id-profile').val(res.id);
                     // id="id-profile" name="id-profile"
 
-                },error: function(err) {
+                },error: function(xhr) {
                     $('#detail-user').removeClass('hidden');
                     $('#loading').addClass('hidden');
                     showAlert({
@@ -358,17 +359,17 @@
             e.preventDefault();
             let data    = $('#form-update-profile').serialize();
             let idx     = $('#id-profile').val();
-            let url     = "{{ route('admin.auth.profile.update', ['id' => ':id']) }}".replace(':id', idx);
+            let url     = "{{ route('admin.auth.profile.update') }}";
             sendData(url, data);
         });
 
-        $('#form-update-profile').on('submit', function(e){
-            e.preventDefault();
-            let data    = $('#form-update-profile').serialize();
-            let idx     = $('#id-profile').val();
-            let url     = "{{ route('admin.auth.password.update', ['id' => ':id']) }}".replace(':id', idx);
-            sendData(url, data);
-        });
+        // $('#form-update-profile').on('submit', function(e){
+        //     e.preventDefault();
+        //     let data    = $('#form-update-profile').serialize();
+        //     let idx     = $('#id-profile').val();
+        //     let url     = "{{ route('admin.auth.password.update', ['id' => ':id']) }}".replace(':id', idx);
+        //     sendData(url, data);
+        // });
 
         function sendData(url, data){
             $.ajax({
@@ -382,7 +383,7 @@
                 success: function(response) {
                     $('#tab-content-data').removeClass('hidden');
                     $('#tab-content-loading').addClass('hidden');
-                    $('#form-update-profile')[0].reset();
+                    // $('#form-update-profile')[0].reset();
                     $('#form-update-password')[0].reset();
                     if(response.success) {
                         showAlert({
@@ -397,7 +398,7 @@
                 error: function(xhr) {
                     $('#tab-content-data').removeClass('hidden');
                     $('#tab-content-loading').addClass('hidden');
-                    $('#form-update-profile')[0].reset();
+                    // $('#form-update-profile')[0].reset();
                     $('#form-update-password')[0].reset();
                     showAlert({
                         type: 'error',
