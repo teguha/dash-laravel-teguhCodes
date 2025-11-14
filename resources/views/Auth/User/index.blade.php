@@ -19,7 +19,7 @@
 
         <!-- Page Header with Title and Actions -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-4">
-            <div class="flex flex-col lg:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex flex-col lg:flex-row md:items-left md:justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-800">User Data</h2>
                     <p class="text-sm text-gray-500 mt-1">Manage and view all user data in the system</p>
