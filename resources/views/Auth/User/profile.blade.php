@@ -28,7 +28,7 @@
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" id="detail-user">
                             <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center" id="user-name">
                                 <i class="fas fa-user-circle mr-2 text-blue-500"></i>
-                                {{ ucfirst($user->name)}}
+                                {{ ucwords($user->name)}}
                             </h2>
                             <p class="text-gray-600 text-sm leading-relaxed mb-4" id="user-desc">
                                 Main Director at PT Pandawa 5 With Role {{ucfirst($role->name)}}
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="flex items-center text-sm">
                                     <i class="fas fa-birthday-cake w-5 text-gray-400"></i>
-                                    <span class="text-gray-600 ml-3" id="birth-date">{{ $user->date_birtth ? date_birth($user->date_birth, 'd M Y') : '-'}}</span>
+                                    <span class="text-gray-600 ml-3" id="birth-date">{{ $user->date_birth ? format_date($user->date_birth, 'd M Y') : '-'}}</span>
                                 </div>
                                 <input type="hidden" id="id-profile" name="id-profile" value="{{$user->id}}">
                             </div>
@@ -143,9 +143,11 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-user text-gray-400"></i>
                                                             </div>
-                                                            <input type="text" name="fullname" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" value="{{$user->name}}" placeholder="Enter full name">
+                                                            <input type="text" name="name" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" value="{{$user->name}}" placeholder="Enter full name">
                                                         </div>
                                                     </div>
+
+                                                    <input type="hidden" value="{{$user->id}}" name="user_id" id="user-id">
     
                                                     <!-- Email Input -->
                                                     <div>
@@ -182,7 +184,7 @@
                                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
                                                                 <i class="fas fa-calendar text-gray-400"></i>
                                                             </div>
-                                                            <input type="date" name="date_birth" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                                            <input type="date" name="date_birth" value="{{ \Carbon\Carbon::parse($user->date_birth)->format('Y-m-d') }}" required class="block w-full pl-10 pr-4 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                                                         </div>
                                                     </div>
 
@@ -206,57 +208,61 @@
                                 <!-- password settings-->
                                 <div id="password" class="tab-content hidden">
                                     <div class="space-y-6">
-                                        <div>
-                                            <!-- <h3 class="font-bold text-gray-900 mb-4">Account Settings</h3> -->
-                                            <div class="space-y-4">
-                                                <form action="" id="form-update-password">
-                                                    @csrf
-                                                    <!-- Password Input -->
-                                                    <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                                            Password <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <div class="relative">
-                                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
-                                                                <i class="fas fa-lock text-gray-400"></i>
+                                        <form action="" id="form-update-password">
+                                            @csrf
+                                            <div>
+                                                <!-- <h3 class="font-bold text-gray-900 mb-4">Account Settings</h3> -->
+                                                <div class="space-y-4">
+                                                        <!-- Password Input -->
+                                                        <div>
+                                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                                Password <span class="text-red-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
+                                                                    <i class="fas fa-lock text-gray-400"></i>
+                                                                </div>
+                                                                <input type="password" id="new-password" name="password" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Enter password">
+                                                                <button type="button" onclick="togglePassword('new-password', 'toggleIcon1')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                                    <i id="toggleIcon1" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                                                                </button>
                                                             </div>
-                                                            <input type="password" id="password" name="password" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Enter password">
-                                                            <button type="button" onclick="togglePassword('password', 'toggleIcon1')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                                                <i id="toggleIcon1" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
-                                                            </button>
                                                         </div>
-                                                    </div>
-    
-                                                    <!-- Confirm Password -->
-                                                    <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">
-                                                            Confirm Password <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <div class="relative">
-                                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
-                                                                <i class="fas fa-lock text-gray-400"></i>
+
+                                                        <input type="hidden" value="{{$user->id}}" name="user_id_password" id="user-id-password">
+        
+                                                        <!-- Confirm Password -->
+                                                        <div>
+                                                            <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">
+                                                                Confirm Password <span class="text-red-500">*</span>
+                                                            </label>
+                                                            <div class="relative">
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[12px]">
+                                                                    <i class="fas fa-lock text-gray-400"></i>
+                                                                </div>
+                                                                <input type="password" id="confirmPassword" name="password_confirmation" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Confirm password">
+                                                                <button type="button" onclick="togglePassword('confirmPassword', 'toggleIcon2')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                                    <i id="toggleIcon2" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                                                                </button>
                                                             </div>
-                                                            <input type="password" id="confirmPassword" name="password_confirmation" required class="block w-full pl-10 pr-12 py-3 text-[14px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Confirm password">
-                                                            <button type="button" onclick="togglePassword('confirmPassword', 'toggleIcon2')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                                                <i id="toggleIcon2" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
-                                                            </button>
                                                         </div>
-                                                    </div>
-                                                </form>
+                                                
+
+                                                </div>
 
                                             </div>
 
-                                        </div>
-
-                                        <div>
-                                            <!-- <h3 class="font-bold text-gray-900 mb-4 text-red-600">Danger Zone</h3> -->
-                                            <div class="space-y-3">
-                                                <button class="w-full p-4 border-2 border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-                                                    <i class="fas fa-key mr-2"></i>
-                                                    Update Password
-                                                </button>
+                                            <div class="mt-4">
+                                                <!-- <h3 class="font-bold text-gray-900 mb-4 text-red-600">Danger Zone</h3> -->
+                                                <div class="space-y-3">
+                                                    <button type="submit" class="w-full p-4 border-2 border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                                                        <i class="fas fa-key mr-2"></i>
+                                                        Update Password
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
+
+                                        </form>
                                         
                                     </div>
                                 </div>
@@ -322,59 +328,60 @@
         }
 
         // load when update data user
-        function loadDataUser(){
-            $.ajax({
-                url     : 'get-data-user',
-                type    : 'GET',
-                beforeSend: function() {
-                    $('#detail-user').addClass('hidden');
-                    $('#loading').removeClass('hidden');
-                }, success: function(res) {
-                    $('#detail-user').removeClass('hidden');
-                    $('#loading').addClass('hidden');
+        // function loadDataUser(){
+        //     $.ajax({
+        //         url     : 'get-data-user',
+        //         type    : 'POST',
+        //         headers: {
+        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //         },
+        //         beforeSend: function() {
+        //             $('#detail-user').addClass('hidden');
+        //             $('#loading').removeClass('hidden');
+        //         }, success: function(res) {
+        //             $('#detail-user').removeClass('hidden');
+        //             $('#loading').addClass('hidden');
 
-                    // update data
-                    $('#email-user').text(res.email);
-                    $('#phone-user').text(res.phone);
-                    $('#birth-date').text(res.birth);
-                    // $('#website-user').text(res.website);
-                    // $('#id-profile').val(res.id);
-                    // id="id-profile" name="id-profile"
+        //             // update data
+        //             $('#user-name').text(res.name);
+        //             $('#email-user').text(res.email);
+        //             $('#phone-user').text(res.phone);
+        //             $('#birth-date').text(res.birth);
 
-                },error: function(xhr) {
-                    $('#detail-user').removeClass('hidden');
-                    $('#loading').addClass('hidden');
-                    showAlert({
-                        type: 'error',
-                        title: 'Gagal!',
-                        message: xhr.responseJSON.message || 'Terjadi kesalahan',
-                        duration: 0
-                    });
-                }
+        //             console.log(res);
+        //             // console.log(res.data.name);
+        //             // $('#website-user').text(res.website);
+        //             // $('#id-profile').val(res.id);
+        //             // id="id-profile" name="id-profile"
 
-            });
-        }
+        //         },error: function(xhr) {
+        //             $('#detail-user').removeClass('hidden');
+        //             $('#loading').addClass('hidden');
+        //             showAlert({
+        //                 type: 'error',
+        //                 title: 'Gagal!',
+        //                 message: xhr.responseJSON.message || 'Terjadi kesalahan',
+        //                 duration: 0
+        //             });
+        //         }
+
+        //     });
+        // }
 
         $('#form-update-profile').on('submit', function(e){
             e.preventDefault();
             let data    = $('#form-update-profile').serialize();
-            let idx     = $('#id-profile').val();
             let url     = "{{ route('admin.auth.profile.update') }}";
             sendData(url, data);
         });
-
-        // $('#form-update-profile').on('submit', function(e){
-        //     e.preventDefault();
-        //     let data    = $('#form-update-profile').serialize();
-        //     let idx     = $('#id-profile').val();
-        //     let url     = "{{ route('admin.auth.password.update', ['id' => ':id']) }}".replace(':id', idx);
-        //     sendData(url, data);
-        // });
 
         function sendData(url, data){
             $.ajax({
                 url: url,
                 type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: data,
                 beforeSend: function() {
                     $('#tab-content-data').addClass('hidden');
@@ -383,7 +390,6 @@
                 success: function(response) {
                     $('#tab-content-data').removeClass('hidden');
                     $('#tab-content-loading').addClass('hidden');
-                    // $('#form-update-profile')[0].reset();
                     $('#form-update-password')[0].reset();
                     if(response.success) {
                         showAlert({
@@ -392,14 +398,84 @@
                             message: response.message,
                             duration: 0 // 0 = manual close, atau set 3000 untuk 3 detik
                         });
+
+                        // console.log(response.data);
+                        $('#user-name').text(response.data.name);
+                        $('#email-user').text(response.data.email);
+                        $('#phone-user').text(response.data.phone);
+                        $('#birth-date').text(response.data.date_birth);
                     }
-                    loadDataUser();
+                    // loadDataUser();
                 },
                 error: function(xhr) {
                     $('#tab-content-data').removeClass('hidden');
                     $('#tab-content-loading').addClass('hidden');
-                    // $('#form-update-profile')[0].reset();
                     $('#form-update-password')[0].reset();
+                    showAlert({
+                        type: 'error',
+                        title: 'Gagal!',
+                        message: xhr.responseJSON.message || 'Terjadi kesalahan',
+                        duration: 0
+                    });
+                }
+            });
+        }
+
+        $('#form-update-password').on('submit', function(e){
+            e.preventDefault();
+            let data    = $('#form-update-password').serialize();
+            let url     = "{{ route('admin.auth.password.update') }}";
+            updatePassword(url, data);
+        });
+
+        
+        function updatePassword(url, data){
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: data,
+                success: function(response) {
+                    $('#form-update-password')[0].reset();
+                    if(response.success) {
+                        showAlert({
+                            type: 'success',
+                            title: 'Berhasil!',
+                            message: response.message,
+                            duration: 0 // 0 = manual close, atau set 3000 untuk 3 detik
+                        });
+                    }else{
+                        let errMsg = '';
+                        if (response.responseJSON && response.responseJSON.errors) {
+                            let errors  = response.responseJSON.errors;
+                            errMsg      = Object.values(errors).flat().join('<br>');
+                        }else if (response.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        } else {
+                            errMsg = 'Terjadi kesalahan yang tidak diketahui.';
+                        }
+                        showAlert({
+                            type: 'error',
+                            title: 'Gagal!',
+                            message: response.message || 'Terjadi kesalahan',
+                            duration: 0
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    let errMsg = '';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Ambil semua pesan error dari Laravel
+                        let errors = xhr.responseJSON.errors;
+                        // Gabungkan semua pesan error jadi satu string dengan <br>
+                        errMsg = Object.values(errors).flat().join('<br>');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    } else {
+                        errMsg = 'Terjadi kesalahan yang tidak diketahui.';
+                    }
                     showAlert({
                         type: 'error',
                         title: 'Gagal!',

@@ -55,7 +55,7 @@ Route::group(['middleware' => 'custom.auth'], function () {
     
         Route::post('get-data-user', [AuthController::class, 'user'])->name('user');
         Route::post('profile-update', [AuthController::class, 'profileUpdate'])->name('profile.update');
-        Route::post('password-update/{id}', [AuthController::class, 'updatePassword'])->name('password.update');
+        Route::post('password-update', [AuthController::class, 'updatePassword'])->name('password.update');
     });
     
     // user

@@ -110,43 +110,68 @@ class AuthController extends BaseController
     }
 
     public function profileUpdate(Request $request){
+        $user = User::find($request->user_id);
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users',
-            'phone'     => 'required',
-            'date_birth' => 'required'
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json([
                 'success'   => false,
-                'message'   => 'Failed update data'
+                'message'   => 'Failed update data',
+                'data'      => $user
             ]);
         }
 
+
         DB::beginTransaction();
         try {
-            $user = User::find($id);
-            $user->update([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'phone'    => $request->phone,
-                'date_birth' => $request->date_birth
 
+            // // Debug user
+            // if (!$user) {
+            //     throw new Exception("USER TIDAK DITEMUKAN DARI AUTH");
+            // }
+
+            // // Debug request
+            // if (!$request->name) {
+            //     throw new Exception("REQUEST NAME KOSONG");
+            // }
+
+            $user->update([
+                'name'          => $request->name,
+                'email'         => $request->email,
+                'phone'         => $request->phone,
+                'date_birth'    => $request->date_birth
             ]);
+
+            //  if (!$user) {
+            //     throw new Exception("UPDATE RETURN FALSE");
+            // }
+
             DB::commit(); 
+
+            // $user->refresh(); // important!
 
             return response()->json([
                 'success'   => true,
-                'message'   => 'Success update data'
+                'message'   => 'Success update data',
+                'data'      => [
+                    'name'  => ucwords($user->name),
+                    'phone' => $user->phone,
+                    'email' => $user->email,
+                    'date_birth' => format_date($user->date_birth, 'd F Y')
+                ]
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack(); 
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed update data',
+                'success'   => false,
+                'message'   => 'Failed update data'.$e->getMessage(),
+                'data'      => ''
             ], 500);
         }
         
@@ -158,11 +183,12 @@ class AuthController extends BaseController
         return view('Auth.User.profile', compact(['user', 'role']));
     }
 
+    // get data user detail
     public function user(Request $request){
         $user = Auth::user();
         return response()->json([  
             'success' => true,
-            'name'    => $user->name,
+            'name'    => ucwords($user->name),
             'email'   => $user->email,
             'birth'   => format_date($user->date_birth, 'd M Y'),
             'phone'   => $user->phone
@@ -183,14 +209,7 @@ class AuthController extends BaseController
             ]);
         }
 
-        $user = Auth::user();
-
-        // if (!Hash::check($request->current_password, $user->password)) {
-        //     return response()->json([
-        //         'message' => 'Current password is incorrect'
-        //     ], 403);
-        // }
-
+        $user = User::find($request->user_id_password);
         $user->update([
             'password' => Hash::make($request->password)
         ]);

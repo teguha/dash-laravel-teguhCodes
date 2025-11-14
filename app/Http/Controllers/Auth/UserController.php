@@ -29,13 +29,9 @@ class UserController extends BaseController
     // get data
     public function getData(Request $request)
     {
-        // $query = User::select('users.*')
-        //     ->join('set_role', 'set_role.id', '=', 'users.role_id') // sesuaikan foreign key-nya
-        //     ->with('re_role');
-
         $query = User::with('re_role');
 
-        // 🔍 Filter pencarian
+        // filter search
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%$search%");
@@ -69,11 +65,14 @@ class UserController extends BaseController
         if($sortBy == 'role'){
             // $data = $query->orderBy($item->re_role, $sortDir)
             //    ->paginate($perPage, ['*'], 'page', $page);
-             $data = $query->whereHas('re_role', function ($q) use ($sortDir) {
 
-                $q->orderBy('name', $sortDir);
-             })
-               ->paginate($perPage, ['*'], 'page', $page);
+            //  $data = $query->whereHas('re_role', function ($q) use ($sortDir) {
+            //     $q->orderBy('name', $sortDir);
+            //  })
+
+
+            $query->select('users.*')->leftJoin('set_role', 'users.role_id', '=', 'set_role.id')->orderBy('set_role.name', $sortDir)
+            ->paginate($perPage, ['*'], 'page', $page);
         }else{
             $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
         }
@@ -82,7 +81,7 @@ class UserController extends BaseController
             'data' =>$data->map(function ($item) {
                 return [
                     'id'            => $item->id,
-                    'name'          => ucfirst($item->name),
+                    'name'          => ucwords($item->name),
                     'initial'       => get_initial($item->name),
                     'color'         => random_color(),
                     'email'         => $item->email,
@@ -147,8 +146,16 @@ class UserController extends BaseController
         }
     }
 
-    public function edit(){
-
+    // edit data
+    public function edit($id){
+        $user = User::find($id);
+        return response()->json([
+            'id'        => $user->id,
+            'name'      => $user->name,
+            'phone'     => $user->phone,
+            'email'     => $user->email,
+            'role_id'   => $user->role_id
+        ]);
     }
 
     // update data
@@ -157,6 +164,7 @@ class UserController extends BaseController
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users',
             'phone'     => 'required',
+            'role_id'   => 'required'
         ]);
 
         if($validator->fails()){
@@ -192,6 +200,36 @@ class UserController extends BaseController
             ], 500);
         }
         
+    }
+
+    // function active && not active user
+    public function activateUser(Request $request, $id){
+        $user = User::find($id);
+        if(isset($user)){
+            $new_status = $request->status == 1 ? 'active' : 'inactive';
+            $user->update(['status' => $new_status]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Success update data',
+            ]);
+
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed update data',
+            ], 500);
+        }
+    }
+
+    // delete data
+    public function destroy($id){
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Success delete data'
+        ]);
     }
 
 }
