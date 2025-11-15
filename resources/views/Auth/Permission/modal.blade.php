@@ -38,58 +38,20 @@
                     <input type="text" placeholder="Name" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
                 </div>
 
-                <!-- Email  -->
+                <!-- Head Menu  -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 text-[14px]">
-                        <i class="fas fa-envelope text-gray-400 mr-2"></i>Email
+                        <i class="fas fa-envelope text-gray-400 mr-2"></i>Head Menu
                     </label>
-                    <input type="text" placeholder="example@gmail.com" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
+                    <input type="text" placeholder="Main Menu" id="head-menu" name="head_menu" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
                 </div>
 
-                <!-- Phone  -->
+                <!-- Child Menu  -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 text-[14px]">
-                        <i class="fas fa-phone text-gray-400 mr-2"></i>Phone
+                        <i class="fas fa-envelope text-gray-400 mr-2"></i>Child Menu
                     </label>
-                    <input type="text" placeholder="+6285.." id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none" required>
-                </div>
-
-                <!-- Password  -->
-                <div id="password-field">
-                    <label class="block text-sm font-medium text-gray-700 mb-2 text-[14px]">
-                        <i class="fas fa-key text-gray-400 mr-2"></i>Password
-                    </label>
-                    <input type="text" placeholder="password" id="password" name="password" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none">
-                </div>
-
-                {{-- Status --}}
-                <div class="max-w-md">
-                    <label class="custom-label">
-                        <i class="fas fa-palette"></i>
-                        Status
-                    </label>
-                    <select id="status-user" name="status_user" class="w-full" required>
-                        <option value="active" selected>Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-
-                @php 
-                    $roles =  App\Models\Auth\Role::all();
-                @endphp
-
-                <!-- Color -->
-                <div class="max-w-md">
-                    <label class="custom-label">
-                        <i class="fas fa-user-secret"></i>
-                        Role
-                    </label>
-                    <select id="role-select" name="role" class="w-full" required>
-                        <option value="" disabled selected>Choose role ...</option>
-                        @foreach($roles as $role)
-                            <option value="{{$role->id}}">{{$role->name}}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" placeholder="Child Menu" id="child-menu" name="child_menu" class="w-full px-4 py-3 border border-gray-300 text-[12px] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 outline-none">
                 </div>
 
             </div>

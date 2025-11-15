@@ -35,7 +35,7 @@ use GuzzleHttp\Middleware;
 
 Route::get('/', function () {
     return view('Auth.login');
-});
+})->name('login');
 
 Route::post('/login-process', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/check-email-login', [AuthController::class, 'checkEmailLogin'])->name('auth.check.login');
@@ -52,7 +52,7 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::get('/edit/{id}', [AuthController::class, 'edit'])->name('edit');
         Route::post('/update/{id}', [AuthController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [AuthController::class, 'delete'])->name('delete');
-    
+        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::post('get-data-user', [AuthController::class, 'user'])->name('user');
         Route::post('profile-update', [AuthController::class, 'profileUpdate'])->name('profile.update');
         Route::post('password-update', [AuthController::class, 'updatePassword'])->name('password.update');
@@ -96,7 +96,8 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::get('/data', [PermissionController::class, 'getData'])->name('data');
         Route::get('/index', [PermissionController::class, 'index'])->name('index');
         Route::get('/show/{id}', [PermissionController::class, 'show'])->name('show');
-        Route::post('/create', [PermissionController::class, 'create'])->name('create');
+        Route::get('/track/{id}', [PermissionController::class, 'track'])->name('track');
+        // Route::post('/create', [PermissionController::class, 'create'])->name('create');
         Route::post('/store', [PermissionController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [PermissionController::class, 'edit'])->name('edit');
         Route::post('/update/{id}', [PermissionController::class, 'update'])->name('update');

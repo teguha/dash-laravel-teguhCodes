@@ -1,7 +1,7 @@
 @extends('App.Layout.index')
 
 @section('title')
-    user-data
+    permission-data
 @endsection
 
 @section('content')
@@ -10,9 +10,9 @@
         {{-- breadcrumb --}}
         @include('App.Partials.breadcrumb', [
             'fields' => [
-                'icon' => 'fas fa-shield',
-                'parent' => 'Auth',
-                'child1' => 'User',
+                'icon' => 'fas fa-cog',
+                'parent' => 'Setting',
+                'child1' => 'Permission',
                 'child2' => ''
             ]
         ])
@@ -21,8 +21,8 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-4">
             <div class="flex flex-col lg:flex-row md:items-left md:justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">User Data</h2>
-                    <p class="text-sm text-gray-500 mt-1">Manage and view all user data in the system</p>
+                    <h2 class="text-2xl font-bold text-gray-800">Permission</h2>
+                    <p class="text-sm text-gray-500 mt-1">Manage and view all permission in the system</p>
                     <button class="text-sm text-gray-500 mt-2"><i class="fa fas fa-download text-[14px] w-2 mr-4"></i>Format Excel Example</button>
                 </div>
 
@@ -30,9 +30,10 @@
                     'fields' => [
                         'add' => true,
                         'export' => true,
-                        'import' => true,
+                        // 'import' => true,
                     ]
                 ])
+                
             </div>
         </div>
 
@@ -44,7 +45,7 @@
                     'formId' => 'roleFilter',
                     'fields' => [
                         'search' => true,
-                        'role'   => true,
+                        // 'role'   => true,
                         'date'   => true,
                     ]
                 ])
@@ -54,10 +55,7 @@
                 // Head Table
                 $columns = [
                     ['field' => 'name', 'label' => 'Name', 'sortable' => true],
-                    ['field' => 'role', 'label' => 'Role', 'sortable' => true],
-                    ['field' => 'email', 'label' => 'Email', 'sortable' => false],
-                    ['field' => 'phone', 'label' => 'Phone', 'sortable' => false],
-                    ['field' => 'status', 'label' => 'Status', 'sortable' => false],
+                    ['field' => 'menu', 'label' => 'Menu', 'sortable' => false],
                     ['field' => 'updated_at', 'label' => 'Updated At', 'sortable' => true],
                 ];
             @endphp
@@ -82,12 +80,8 @@
     </main>
 
     {{-- modal --}}
-    @include('Auth.User.modal')
+    @include('Auth.Permission.modal')
     @include('App.Partials.delete-modal')
-    
-    @php
-        $rolesData = App\Models\Auth\Role::all();
-    @endphp
 @endsection
 
 
@@ -97,19 +91,13 @@
 
     {{-- datatable --}}
     <script>
-        const statusUser = {
-            "active"    : "active",
-            "inactive"  : "inactive",
-        }
-
-        const roleUser = @json($rolesData);
 
         const routes = {
-            add     : "{{ route('admin.user.store') }}",
-            edit    : "{{ route('admin.user.edit', ['id' => ':id']) }}",
-            show    : "{{ route('admin.user.edit', ['id' => ':id']) }}",
-            track   : "{{ route('admin.user.track', ['id' => ':id']) }}",
-            delete  : "{{ route('admin.user.delete', ['id' => ':id']) }}"
+            add     : "{{ route('admin.setting.permission.store') }}",
+            edit    : "{{ route('admin.setting.permission.edit', ['id' => ':id']) }}",
+            show    : "{{ route('admin.setting.permission.edit', ['id' => ':id']) }}",
+            track   : "{{ route('admin.setting.permission.track', ['id' => ':id']) }}",
+            delete  : "{{ route('admin.setting.permission.delete', ['id' => ':id']) }}"
         };
 
         // $(function() {
@@ -121,13 +109,9 @@
             // load table first
             loadTable(1); 
 
-            // Ketika user mengetik atau klik tombol filter
-            $('#filter-role').on('change keyup', function() {
-                loadTable(1);
-            });
-
             // Event ketika user klik "Apply"
             $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
+                // Set tampilan ke input
                 let start = picker.startDate.format('YYYY-MM-DD');
                 let end = picker.endDate.format('YYYY-MM-DD');
 
@@ -148,7 +132,7 @@
             // reset filter
             $('#reset-filter').on('click', function() {
                 $('#search-table').val('');
-                $('#filter-role').val('');
+                // $('#filter-role').val('');
                 $('#filter-date').val('');
                 loadTable(1);
             });
@@ -156,11 +140,11 @@
             //Fungsi utama load data
             function loadTable(page = 1, start= '' , end = '') {
                 $.ajax({
-                    url: "{{ route('admin.user.data') }}",
+                    url: "{{ route('admin.setting.permission.data') }}",
                     type: "GET",
                     data: {
                         search      : $('#search-table').val(),
-                        role        : $('#filter-role').val(),
+                        // role        : $('#filter-role').val(),
                         date_start  : start,
                         date_end    : end,
                         sort_by     : currentSortBy,
@@ -215,46 +199,19 @@
                                 <input type="checkbox" value="${item.id}" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="text-sm font-semibold text-gray-600">${ startNo + i}</span>
+                                <span class="text-sm font-semibold text-gray-900">${ startNo + i}</span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <div class="flex items-center space-x-1">
-                                    <!-- Initial berbentuk lingkaran -->
-                                    <span class="flex items-center justify-center w-8 h-8 text-[12px] rounded-full bg-${item.color}-500 text-white font-semibold">
-                                        ${item.initial}
-                                    </span>
-
-                                    <!-- Nama -->
-                                    <span class="inline-flex items-center px-3 py-1 font-[arial] tracking-normal rounded-full text-xs font-semibold  text-gray-600">
-                                        ${item.name}
-                                    </span>
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.role != 'none' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
-                                    
-                                    ${item.role}
-                                </span>
-                            </td>
-
-                            <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold  text-gray-600">
-                                    ${item.email}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
+                                    ${item.name}
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold  text-gray-600">
-                                    ${item.phone}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ">
+                                    ${item.menu}
                                 </span>
                             </td>
-                           
-                            <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.status != 'Inactive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
-                                    
-                                    ${item.status}
-                                </span>
-                            </td>
+                            ${item.created_at}
                             ${item.updated_at}
                             <td class="px-6 py-4">
                                 <div class="flex justify-center">
@@ -275,7 +232,7 @@
 
                                             <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
                                                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-map-marker-alt text-green-600 text-xs"></i>
+                                                    <i class="fas fa-history text-green-600 text-xs"></i>
                                                 </div>
                                                 <span class="font-medium">Track Activity</span>
                                             </a>
@@ -318,6 +275,7 @@
                 let url     = $(this).data('url');
                 let method  = $(this).data('type') == 'add' ?  "POST" : "PUT";
                 let data    = $('#formModal').serialize();
+
                 sendData( url, method, data);
             });
 
@@ -351,23 +309,22 @@
                 if(idx == null && type =='add'){
                     const icon = $('#modal-title-icon');
                     $('#modal-title').text('Add New Data');
-                    $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
+                    $('#modal-title-bg').removeClass('bg-yellow-100 bg-green-100').addClass('bg-blue-100');
                     icon.removeClass().addClass('fas fa-plus text-blue-600');
+                    
+                    //form
                     $('#name').val('');
-                    $('#password').val('');
-                    $('#phone').val('');
-                    $('#email').val('');
-                    $('#status-user').val('').change();
-                    $('#role-select').val('').change();
+                    $('#head-menu').val('');
+                    $('#child-menu').val('');
+
+                    $('#form-track').addClass('hidden');
+                    $('#form-body').removeClass('hidden');
 
                     //disabled
                     $('#name').prop('disabled', false);
-                    $('#status-user').prop('disabled', false);
-                    $('#role-select').prop('disabled', false);
-                    $('#phone').prop('disabled', false);
-                    $('#email').prop('disabled', false);
-                    $('#password-field').removeClass('hidden');
-    
+                    $('#head-menu').prop('disabled', false);
+                    $('#child-menu').prop('disabled', false);
+
                     $('#modal-footer').removeClass('hidden');
                     $('#btn-submit').removeClass('bg-yellow-600 hover:bg-yellow-700').addClass('bg-blue-600 hover:bg-blue-700');
                 
@@ -386,7 +343,6 @@
                         success: function(res) {
                             $('#form-body').removeClass('hidden');
                             $('#form-loading').addClass('hidden');
-                            
                             const icon = $('#modal-title-icon');
                             if(type == 'edit'){
                                 $('#modal-title').text('Edit Data');
@@ -396,29 +352,21 @@
 
                                 // form modal
                                 $('#name').val(res.name);
-                                const statusValue = statusUser[res.status] || res.status;
-                                $('#status-user').val(statusValue).change();
+                                $('#head-menu').val(res.head_menu);
+                                $('#child-menu').val(res.child_menu);
 
-                                const roleValue = roleUser[res.role] || res.role;
-                                $('#role-select').val(roleValue).change();
-                                $('#email').val(res.email);
-                                $('#phone').val(res.phone);
-                                
+    
                                 //disabled
                                 $('#name').prop('disabled', false);
-                                $('#status-user').prop('disabled', false);
-                                $('#role-select').prop('disabled', false);
-                                $('#phone').prop('disabled', false);
-                                $('#email').prop('disabled', false);
-
-                                $('#password-field').addClass('hidden');
+                                $('#head-menu').prop('disabled', false);
+                                $('#child-menu').prop('disabled', false);
 
                                 $('#form-track').addClass('hidden');
                                 $('#modal-footer').removeClass('hidden');
                                 $('#btn-submit').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-600 hover:bg-yellow-700');
                                 
                                 // form Modal
-                                let urlEdit = '{{ route('admin.user.update', ['id' => ':idx']) }}'.replace(':idx', idx);
+                                let urlEdit = '{{ route('admin.setting.role.update', ['id' => ':idx']) }}'.replace(':idx', idx);
                                 $('#formModal').data('type', 'edit');
                                 $('#formModal').data('url', urlEdit);
                             }else if(type =='show'){
@@ -427,33 +375,27 @@
                                 icon.removeClass().addClass('fas fa-eye text-blue-600');
                                 $('#form-body').removeClass('hidden');
                                 
-                                // form modal
+                                 // form modal
                                 $('#name').val(res.name);
-                                const statusValue = statusUser[res.status] || res.status;
-                                $('#status-user').val(statusValue).change();
+                                $('#head-menu').val(res.head_menu);
+                                $('#child-menu').val(res.child_menu);
 
-                                const roleValue = roleUser[res.role] || res.role;
-                                $('#role-select').val(roleValue).change();
-                                $('#email').val(res.email);
-                                $('#phone').val(res.phone);
-                                $('#password-field').addClass('hidden');
-                                
-                                // form disable 
+    
+                                //disabled
                                 $('#name').prop('disabled', true);
-                                $('#status-user').prop('disabled', true);
-                                $('#role-select').prop('disabled', true);
-                                $('#phone').prop('disabled', true);
-                                $('#email').prop('disabled', true);
+                                $('#head-menu').prop('disabled', true);
+                                $('#child-menu').prop('disabled', true);
+
+                                $('#modal-footer').addClass('hidden');
+                                $('#form-track').addClass('hidden');
 
                                 // form Modal
-                                $('#form-track').addClass('hidden');
-                                $('#modal-footer').addClass('hidden');
                                 $('#formModal').data('type', 'show');
                                 $('#formModal').removeData('url');
                             }else{
                                 $('#modal-title').text('Show Tracking');
-                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-blue-100');
-                                icon.removeClass().addClass('fas fa-map-marker-alt text-blue-600');
+                                $('#modal-title-bg').removeClass('bg-yellow-100').addClass('bg-green-100');
+                                icon.removeClass().addClass('fas fa-history text-green-600');
                                 $('#form-body').addClass('hidden');
                                 $('#form-track').removeClass('hidden');
                                 $('#modal-footer').addClass('hidden');
@@ -479,23 +421,6 @@
         // });
     </script>
 
-    <script>
-        $(document).ready(function() {
-            $('#role-select').select2({
-                placeholder: 'Select role...',
-                allowClear: true,
-                width: '100%',
-                minimumResultsForSearch: 5 // Show search box if more than 5 items
-            });
-
-            $('#status-user').select2({
-                placeholder: 'Select status...',
-                allowClear: true,
-                width: '100%',
-                minimumResultsForSearch: 2 // Show search box if more than 5 items
-            });
-        });
-    </script>
 
     {{-- send data modal --}}
     <script src="{{asset('js/send-data.js')}}"></script>

@@ -19,6 +19,13 @@ function sendData(url, method, data) {
                     message: response.message,
                     duration: 0 // 0 = manual close, atau set 3000 untuk 3 detik
                 });
+            }else{
+                showAlert({
+                    type: 'error',
+                    title: 'Gagal!',
+                    message: response.message || 'Terjadi kesalahan',
+                    duration: 0
+                });
             }
             loadTable(1);
         },

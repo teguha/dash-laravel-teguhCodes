@@ -7,8 +7,11 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Symfony\Component\HttpFoundation\Request;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+
 use App\Models\Auth\User;
 use App\Models\Auth\Role;
 use App\Models\Auth\Permission;
@@ -18,217 +21,238 @@ class PermissionController extends BaseController
 
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    // public function index(Request $request){
-    //     $query = Permission::query();
-    //     $recentSearch = [];
-
-    //     if ($request->filled('search')) {
-    //         $query->where('name', 'like', '%' . $request->search . '%');
-    //         $recentSearch['search'] = $request->search;
-    //     }
-
-    //     if ($request->filled('menu')) {
-    //         $query->where('header_menu', 'like', '%' . $request->menu . '%')->orWhere('child_menu', 'like', '%' . $request->menu. '%');
-    //         $recentSearch['menu'] = $request->menu;
-    //     }
-
-    //     $permissions = $query->orderBy('header_menu')
-    //     ->orderBy('child_menu')
-    //     ->orderBy('name')->paginate(10);
-
-    //     return view('Dashboard.auth.permission.index', compact('permissions', 'recentSearch'));
-    // }
-
-     public function index()
+    public function index()
     {
-        return view('Dashboard.auth.permission.index'); // blade utama
+        return view('Auth.Permission.index'); // blade utama
     }
 
+    // get data
     public function getData(Request $request)
     {
-        $query = Permission::query(); // kalau ada relasi permission
+        $query = Permission::query();
 
-        return DataTables::of($query)
-            ->filter(function ($query) use ($request) {
-                if ($request->search) {
-                    $query->where('name', 'like', '%' . $request->search . '%')->orWhere('menu', 'like', '%'. $request->search.'%');
-                }
-                if ($request->date) {
-                    $query->whereDate('created_at', $request->date);
-                }
-            })
-            ->editColumn('name', function($row){
-            
-                if($row->name == 'view'){
-                    $color = 'primary';
-                }elseif($row->name == 'edit'){
-                    $color = 'warning';
-                }elseif($row->name == 'delete'){
-                    $color = 'danger';
-                }elseif($row->name == 'approved'){
-                    $color = 'success';
-                }else{
-                    $color = 'secondary';
-                }
-            
-                return '
-                <div style="font-size:14px">
-                    <span class="badge badge-'.($color).'">
-                        '.e($row->name).'
-                    </span>
-                </div>
-                    
-                ';
-            })
-            ->editColumn('menu', function ($row) {
-                $child = '';
-
-                if (!empty($row->child_menu)) {
-                    $child = '
-                        <div class="vertical-timeline-item dot-warning vertical-timeline-element">
-                            <div>
-                                <span class="vertical-timeline-element-icon bounce-in"></span>
-                                <div class="vertical-timeline-element-content bounce-in">
-                                    <p class="timeline-title">
-                                        <span class="badge badge-warning" style="font-size: 10px !important;"> '
-                                            . e($row->child_menu) . 
-                                        ' </span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ';
-                }
-
-                return '
-                    <div class="vertical-time-simple vertical-without-time vertical-timeline vertical-timeline--animate vertical-timeline--one-column">
-                        <div class="vertical-timeline-item dot-danger vertical-timeline-element">
-                            <div>
-                                <span class="vertical-timeline-element-icon bounce-in"></span>
-                                <div class="vertical-timeline-element-content bounce-in">
-                                    <p class="timeline-title">
-                                        <span class="badge badge-danger" style="font-size: 10px !important;"> '
-                                            . e($row->header_menu) .
-                                        ' </span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        '.$child.'
-                    </div>
-                ';
-            })
-
-
-            ->editColumn('created_at', function ($row) {
-                return datatable_user_time($row->re_created_by, $row->created_at);
-            })
-            ->editColumn('updated_at', function ($row) {
-                return datatable_user_time($row->re_updated_by, $row->updated_at);
-            })
-            ->addColumn('action', function ($row) {
-                 $resource = 'permission'; 
-                return view('Dashboard.partials.action-type2', compact('row', 'resource'))->render();
-            })
-            ->rawColumns(['name','menu','created_at','updated_at','action']) // kalau pakai button/link HTML
-            ->addIndexColumn()
-            ->make(true);
-    }
-
-    public function create(){
-        return view('Dashboard.auth.permission.create');
-    }
-
-
-    public function show($id){
-        $permission = Permission::findOrFail($id);
-        return response()->json([
-            'id' => $permission->id,
-            'name' => $permission->name,
-            'header_menu' => $permission->header_menu,
-            'child_menu' => $permission->child_menu ? $permission->child_menu : '',
-        ]);
-    }
-
-    public function store(Request $request){
-        
-        $request->validate([
-            'name' => 'required',   
-            'header_menu' => 'required'
-        ]);
-
-        $combine = $request->name.' '.$request->header_menu;
-        if(isset($request->child_menu)){
-            $combine = $combine.' '.$request->child_menu;
+        // Filter pencarian
+        if ($search = $request->search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%");
+            });
         }
 
-        $slug = Str::slug($combine);
+        if(isset($request->date_start) && isset($request->date_end)){
+            $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
+        }
+
+        // Pagination manual
+        $perPage = 10;
+        $page = $request->get('page', 1);
+
+        $sortBy = match($request->sort_by ?? '') {
+            'name'          => 'name',
+            'updated'       => 'updated_at',
+            // 'permission'    => 'permission',
+            default         => 'id',
+        };
+
+        // Tentukan arah sort, default 'desc'
+        $sortDir = $request->sort_dir ?? 'desc';
+
+        // Jalankan query dengan orderBy, baru paginate
+        $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
+        
+
+        return response()->json([
+            'data' =>$data->map(function ($item) {
+                $permissions = json_decode($item->permission ?? '[]', true);
+                $count = is_array($permissions) ? count($permissions) : 0;
+
+                return [
+                    'id'                => $item->id,
+                    'name'              => ucfirst($item->name),
+                    'menu'              => $item->head_menu,
+                    'updated_at'        => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
+                ];
+            }),
+            'pagination' => [
+                'current_page'          => $data->currentPage(),
+                'per_page'              => $data->perPage(),
+                'last_page'             => $data->lastPage(),
+                'total'                 => $data->total(),
+                'from'                  => $data->firstItem(),
+                'to'                    => $data->lastItem(),
+            ]
+        ]);
+    }
+
+    // store data
+    public function store(Request $request){
+        
+        $validator = Validator::make($request->all(), [
+            'name'      => 'required',
+            'head_menu' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
+        }
+
+        $head_menu  = $request->input('head_menu');
+        $child_menu = $request->input('child_menu', '');
+
+        $slug = Str::slug($request->name.' '.strtolower($head_menu).' '.strtolower($child_menu));
         $duplicateName = Permission::where('slug', $slug)->first();
 
         if ($duplicateName) {
-            return redirect()->back()
-            ->withErrors(['name' => 'Permission has ready.'])
-            ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission alredy exist '
+            ], 422);
         }
 
-        
         Permission::create([
-            'name' => $request->name,
-            'header_menu' => $request->header_menu,
-            'slug' => $slug,
-            'child_menu' => $request->child_menu ? $request->child_menu : null,
+            'name'  => $request->name,
+            'slug'  => $slug,
+            'header_menu' => strtolower($request->head_menu),
+            'child_menu' => $request->child_menu  ? strtolower($request->child_menu) : '',
         ]); 
 
-        return redirect()->back()->with('success', 'Success add data.');
-
-    }
-
-    public function edit($id){
-        $permission = Permission::find($id);
-        return view('Dashboard.auth.permission.edit', compact('permission'));
-    }
-
-    public function update(Request $request, $id){
-        $request->validate([
-            'name' => 'required',   
-            'header_menu' => 'required'
+        return response()->json([
+            'success' => true,
+            'message' => 'Success add data'
         ]);
 
-        $combine = $request->name.' '.$request->header_menu;
-        if(isset($request->child_menu)){
-            $combine = $combine.' '.$request->child_menu;
+    }
+
+    // edit data
+    public function edit($id){
+        $permissions = Permission::find($id);
+        return response()->json([
+            'id'    => $permissions->id,
+            'name'  => $permissions->name,
+            'head_menu' => $permissions->head_menu,
+        ]);
+    }
+
+    // update data
+    public function update(Request $request, $id){
+        $validator = Validator::make($request->all(), [
+            'name'      => 'required',
+            'head_menu' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
         }
+        $head_menu  = $request->input('head_menu');
+        $child_menu = $request->input('child_menu', '');
 
-        $slug = Str::slug($combine);
-
+        $slug = Str::slug($request->name.' '.strtolower($head_menu).' '.strtolower($child_menu));
         $duplicateName = Permission::whereRaw('LOWER(slug) = ?', [strtolower($slug)])
         ->where('id', '!=', $id)
         ->first();
         
 
         if ($duplicateName) {
-            return redirect()->back()
-            ->withErrors(['name' => 'Permission has ready'])
-            ->withInput();
+             return response()->json([
+                'success' => false,
+                'message' => 'Permission alredy exist'
+            ], 422);
         }
 
-        $permission = Permission::findOrFail($id);
-        $permission->update([
-            'name' => $request->name,
-            'slug' => $slug,
-            'header_menu' => $request->header_menu,
-            'child_menu' => $request->child_menu ? $request->child_menu : null,
+        $permissions = Permission::findOrFail($id);
+        $permissions->update([
+            'name'  => $request->name,
+            'slug'  => $slug,
+            'header_menu' => strtolower($head_menu),
+            'child_menu' => $request->child_menu ? strtolower($child_menu) : ''
         ]);
 
-        return redirect()->route('admin.setting.permission.index')->with('success', 'Success updated data.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Success update data'
+        ]);
     }
 
+    // delete data
     public function destroy($id){
-        $permission = Permission::findOrFail($id);
-        $permission->delete();
+        $permissions = Permission::findOrFail($id);
+        $permissions->delete();
 
-        return response()->json(['message' => 'Permission deleted successfully.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Success delete data'
+        ]);
     }
+
+    // simple track
+    public function track($id){
+        $item = Permission::find($id);
+
+        $name_created = $item->re_created_by?->name ?? 'System';
+        $time_created = optional($item->created_at)
+            ->timezone(config('app.timezone'))
+            ->locale('id')
+            ->translatedFormat('d M Y H:i');
+
+        $html = ' 
+            <div class="relative">
+                <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                <div class="space-y-6">
+                    
+                <div class="relative flex gap-4">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center font-bold z-10">
+                        <i class="fa fa-history text-white"></i>
+                    </div>
+                    <div class="flex-1 pb-8">
+                        <h3 class="font-bold text-gray-900 mb-2"> Create Role '.e($item->name).'</h3>
+                        <p class="text-sm text-gray-600 mb-2"> Create by '.e($name_created).'</p>
+                        <p class="text-sm text-gray-500">'.e($time_created).'</p>
+                    </div>
+                </div>
+        ';
+        if($item->updated_at){
+            $name_updated = $item->re_updated_by?->name ?? 'System';
+            $time_updated = optional($item->updated_at)
+            ->timezone(config('app.timezone'))
+            ->locale('id')
+            ->translatedFormat('d M Y H:i');
+
+            $html .= '  
+                        <div class="relative flex gap-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold z-10">
+                                <i class="fa fa-history text-white"></i>
+                            </div>
+                            <div class="flex-1 pb-8">
+                                <h3 class="font-bold text-gray-900 mb-2"> Update Role '.e($item->name).'</h3>
+                                <p class="text-sm text-gray-600 mb-2">Update by '.e($name_updated).'</p>
+                                <p class="text-sm text-gray-500">'.e($time_updated).'</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            ';
+        }else{
+            $html += '
+                </div>
+            </div>
+            ';
+        }
+
+        return response()->json([
+            'data' => $html
+        ]);
+    }
+
 
 
 }

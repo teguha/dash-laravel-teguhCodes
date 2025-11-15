@@ -65,46 +65,6 @@ class AuthController extends BaseController
 
     }
 
-    // public function store(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'name'      => 'required|string|max:255',
-    //         'email'     => 'required|email|unique:users',
-    //         'phone'     => 'required',
-    //     ]);
-
-    //     if($validator->fails()){
-    //         return response()->json([
-    //             'success'   => false,
-    //             'message'   => 'Failed add data'
-    //         ]);
-    //     }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         // Simpan user baru
-    //         User::create([
-    //             'name'     => $request->name,
-    //             'email'    => $request->email,
-    //             'phone'    => $request->phone,
-    //             'password' => Hash::make($request->password),
-    //         ]);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             'status'    => true,
-    //             'message'   => 'Success add data',
-    //         ], 201);
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack(); 
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Failed add data',
-    //         ], 500);
-    //     }
-    // }
-
     public function edit(){
 
     }
@@ -119,10 +79,11 @@ class AuthController extends BaseController
 
         if($validator->fails()){
             return response()->json([
-                'success'   => false,
-                'message'   => 'Failed update data',
-                'data'      => $user
-            ]);
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
         }
 
 
@@ -204,9 +165,11 @@ class AuthController extends BaseController
 
         if($validator->fails()){
             return response()->json([
-                'success'   => false,
-                'message'   => 'Failed update data'
-            ]);
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
         }
 
         $user = User::find($request->user_id_password);
@@ -218,5 +181,18 @@ class AuthController extends BaseController
             'success'   => true,
             'message'   => 'Password updated successfully'
         ]);
+    }
+
+    public function logout(Request $request){
+        Auth::logout(); // Hapus session user
+
+        // Invalidate session lama
+        $request->session()->invalidate();
+
+        // Regenerate CSRF token baru
+        $request->session()->regenerateToken();
+
+        // Redirect ke halaman login (atau sesuai kebutuhan)
+        return redirect()->route('login')->with('success', 'Logout success');
     }
 }

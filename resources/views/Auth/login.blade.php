@@ -7,9 +7,54 @@
     <title>Login - Dashboard</title>
     <script src="{{asset('js/tailwind.js')}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {{-- alert --}}
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .alert-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .alert-content {
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .icon-success {
+            animation: scaleIn 0.5s ease-out;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
     <div class="min-h-screen flex">
+
+
+        <div id="alertContainer"></div>
+        
         <!-- Left Side - Login Form -->
         <div class="flex-1 flex items-center justify-center p-8">
             <div class="w-full max-w-md">
@@ -191,6 +236,19 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @if (session('success'))
+        <script src="{{asset('js/alert.js')}}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showAlert({
+                    type: 'success',
+                    title: 'Berhasil!',
+                    message: "{{ session('success') }}",
+                    duration: 0
+                });
+            });
+        </script>
+    @endif
     <script>
         // Toggle Password Visibility
         $('#email').on('change keyup', function() {

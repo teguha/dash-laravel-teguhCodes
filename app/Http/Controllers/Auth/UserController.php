@@ -63,15 +63,7 @@ class UserController extends BaseController
 
         // Jalankan query dengan orderBy, baru paginate
         if($sortBy == 'role'){
-            // $data = $query->orderBy($item->re_role, $sortDir)
-            //    ->paginate($perPage, ['*'], 'page', $page);
-
-            //  $data = $query->whereHas('re_role', function ($q) use ($sortDir) {
-            //     $q->orderBy('name', $sortDir);
-            //  })
-
-
-            $query->select('users.*')->leftJoin('set_role', 'users.role_id', '=', 'set_role.id')->orderBy('set_role.name', $sortDir)
+            $data = $query->select('users.*')->leftJoin('set_role', 'users.role_id', '=', 'set_role.id')->orderBy('set_role.name', $sortDir)
             ->paginate($perPage, ['*'], 'page', $page);
         }else{
             $data = $query->orderBy($sortBy, $sortDir)->paginate($perPage, ['*'], 'page', $page);
@@ -83,7 +75,7 @@ class UserController extends BaseController
                     'id'            => $item->id,
                     'name'          => ucwords($item->name),
                     'initial'       => get_initial($item->name),
-                    'color'         => random_color(),
+                    'color'         => random_color($item->id),
                     'email'         => $item->email,
                     'role'          => $item->re_role? $item->re_role->name : 'none',
                     'status'        => ucfirst($item->status),
@@ -128,6 +120,7 @@ class UserController extends BaseController
                 'phone'    => $request->phone,
                 'password' => Hash::make($request->password),
                 'role_id'  => $request->role,
+                'status'   => $request->status_user
             ]);
 
             DB::commit();
@@ -154,35 +147,38 @@ class UserController extends BaseController
             'name'      => $user->name,
             'phone'     => $user->phone,
             'email'     => $user->email,
-            'role_id'   => $user->role_id
+            'status'    => $user->status,
+            'role'      => $user->role_id
         ]);
     }
 
     // update data
     public function update(Request $request, $id){
+        $user = User::find($id);
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users',
-            'phone'     => 'required',
-            'role_id'   => 'required'
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email,' . $id,
+            'phone'             => 'required',
         ]);
 
         if($validator->fails()){
             return response()->json([
-                'success'   => false,
-                'message'   => 'Failed update data'
-            ]);
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => $validator->errors(), // <-- ini kuncinya
+                'fields'  => $validator->errors()->keys(), // opsional: hanya nama field yg error
+            ], 422);
         }
 
 
         DB::beginTransaction();
         try {
-            $user = User::find($id);
             $user->update([
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'phone'    => $request->phone,
                 'role_id'  => $request->role,
+                'status'   => $request->status_user
             ]);
             DB::commit(); 
 
