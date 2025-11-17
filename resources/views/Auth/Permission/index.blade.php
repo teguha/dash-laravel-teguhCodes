@@ -202,13 +202,17 @@
                                 <span class="text-sm font-semibold text-gray-900">${ startNo + i}</span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${item.color}-100 text-${item.color}-700">
                                     ${item.name}
                                 </span>
                             </td>
                             <td class="px-6 py-4 border-r border-gray-200">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ">
                                     ${item.menu}
+                                </span>
+                           
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ">
+                                    ${item.child_menu}
                                 </span>
                             </td>
                             ${item.created_at}
@@ -352,7 +356,7 @@
 
                                 // form modal
                                 $('#name').val(res.name);
-                                $('#head-menu').val(res.head_menu);
+                                $('#head-menu').val(res.header_menu);
                                 $('#child-menu').val(res.child_menu);
 
     
@@ -366,7 +370,7 @@
                                 $('#btn-submit').removeClass('bg-blue-600 hover:bg-blue-700').addClass('bg-yellow-600 hover:bg-yellow-700');
                                 
                                 // form Modal
-                                let urlEdit = '{{ route('admin.setting.role.update', ['id' => ':idx']) }}'.replace(':idx', idx);
+                                let urlEdit = '{{ route('admin.setting.permission.update', ['id' => ':idx']) }}'.replace(':idx', idx);
                                 $('#formModal').data('type', 'edit');
                                 $('#formModal').data('url', urlEdit);
                             }else if(type =='show'){
@@ -377,7 +381,7 @@
                                 
                                  // form modal
                                 $('#name').val(res.name);
-                                $('#head-menu').val(res.head_menu);
+                                $('#head-menu').val(res.header_menu);
                                 $('#child-menu').val(res.child_menu);
 
     

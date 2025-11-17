@@ -65,10 +65,26 @@ class PermissionController extends BaseController
                 $permissions = json_decode($item->permission ?? '[]', true);
                 $count = is_array($permissions) ? count($permissions) : 0;
 
+                if(strtolower($item->name) == 'view'){
+                    $color = 'blue';
+                }elseif(strtolower($item->name) == 'add'){
+                    $color = 'green';
+                } elseif(strtolower($item->name) == 'edit'){
+                    $color = 'yellow';
+                } elseif(strtolower($item->name) == 'delete'){
+                    $color = 'red';
+                } elseif(strtolower($item->name) == 'assign'){
+                    $color = 'purple';
+                } else{
+                    $color = 'gray';
+                }
+
                 return [
                     'id'                => $item->id,
                     'name'              => ucfirst($item->name),
-                    'menu'              => $item->head_menu,
+                    'color'             => $color,
+                    'menu'              => ucfirst($item->header_menu),
+                    'child_menu'        => $item->child_menu ? ucfirst($item->child_menu) : '',
                     'updated_at'        => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
                 ];
             }),
@@ -133,7 +149,8 @@ class PermissionController extends BaseController
         return response()->json([
             'id'    => $permissions->id,
             'name'  => $permissions->name,
-            'head_menu' => $permissions->head_menu,
+            'header_menu' => $permissions->header_menu,
+            'child_menu'  => $permissions->child_menu
         ]);
     }
 

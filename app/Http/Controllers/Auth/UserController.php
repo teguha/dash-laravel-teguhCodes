@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 use App\Models\Auth\User;
 use App\Models\Auth\Role;
+use App\Models\Auth\ActivityLog;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Auth\Permission;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +95,27 @@ class UserController extends BaseController
         ]);
     }
 
+    // private function activityLog($userId,$action, $model, $recordId, $before, $after){
+    //     // Example
+    //     // ActivityLog::create([
+    //     //     'user_id'  => auth()->id(),
+    //     //     'action'   => 'approval',
+    //     //     'model'    => Order::class,
+    //     //     'model_id' => $order->id,
+    //     //     'before'   => ['status' => 'pending'],
+    //     //     'after'    => ['status' => 'approved'],
+    //     // ]);
+
+    //     ActivityLog::create([
+    //         'user_id'  => $userId,
+    //         'action'   => $action,
+    //         'model'    => $model,
+    //         'model_id' => $recordId,
+    //         'before'   => $before ? $before : null,
+    //         'after'    => $after ? $after : null,
+    //     ]);
+    // }
+
     // store data
     public function store(Request $request){
         $validator = Validator::make($request->all(), [
@@ -114,7 +136,7 @@ class UserController extends BaseController
         DB::beginTransaction();
         try {
             // Simpan user baru
-            User::create([
+            $userData = User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'phone'    => $request->phone,
@@ -124,6 +146,7 @@ class UserController extends BaseController
             ]);
 
             DB::commit();
+            // $this->ActivityLog(auth()->id(), 'create', User::class , $userData->id, null, $userData->toArray());
 
             return response()->json([
                 'status' => true,
@@ -173,6 +196,7 @@ class UserController extends BaseController
 
         DB::beginTransaction();
         try {
+            // $before = $user->getOriginal();
             $user->update([
                 'name'     => $request->name,
                 'email'    => $request->email,
@@ -181,6 +205,8 @@ class UserController extends BaseController
                 'status'   => $request->status_user
             ]);
             DB::commit(); 
+            // $after = $user->getChanges();
+            // $this->ActivityLog(auth()->id(), 'update', User::class, $user->id, $before, $after);
 
             return response()->json([
                 'success'   => true,
@@ -221,6 +247,8 @@ class UserController extends BaseController
     public function destroy($id){
         $user = User::findOrFail($id);
         $user->delete();
+        // $before = $user->getOriginal();
+        // $this->ActivityLog(auth()->id(), 'delete', User::class, $user->id, $before, null);
 
         return response()->json([
             'success' => true,

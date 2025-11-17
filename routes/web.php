@@ -100,7 +100,7 @@ Route::group(['middleware' => 'custom.auth'], function () {
         // Route::post('/create', [PermissionController::class, 'create'])->name('create');
         Route::post('/store', [PermissionController::class, 'store'])->name('store');
         Route::get('/edit/{id}', [PermissionController::class, 'edit'])->name('edit');
-        Route::post('/update/{id}', [PermissionController::class, 'update'])->name('update');
+        Route::put('/update/{id}', [PermissionController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [PermissionController::class, 'destroy'])->name('delete');
     });
     

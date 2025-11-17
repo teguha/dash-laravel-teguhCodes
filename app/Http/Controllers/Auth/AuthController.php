@@ -154,7 +154,6 @@ class AuthController extends BaseController
             'birth'   => format_date($user->date_birth, 'd M Y'),
             'phone'   => $user->phone
         ]);
-    
     }
 
     public function updatePassword(Request $request)

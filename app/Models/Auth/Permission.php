@@ -8,11 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\HasUserTracking;
-
+use App\Traits\ActivityLoggable;
 
 class Permission extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUserTracking;
+    use HasApiTokens, HasFactory, Notifiable, HasUserTracking, ActivityLoggable;
 
     /**
      * The attributes that are mass assignable.
