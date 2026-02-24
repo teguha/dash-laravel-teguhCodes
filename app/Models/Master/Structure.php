@@ -8,10 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Auth\User;
+use App\Traits\HasUserTracking;
+use App\Traits\ActivityLoggable;
 
 class Structure extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, ActivityLoggable;
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +59,11 @@ class Structure extends Authenticatable
     public function children()
     {
         return $this->hasMany(Structure::class, 'parent_id');
+    }
+
+    public function direksi()
+    {
+        return $this->hasMany(Structure::class, 'parent_id')->where('level', 'direksi');
     }
 
     // Mendapatkan bagian dari sub_corporate

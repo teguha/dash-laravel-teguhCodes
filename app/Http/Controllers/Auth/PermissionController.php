@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
-use App\Models\Auth\User;
+use App\Models\User;
 use App\Models\Auth\Role;
 use App\Models\Auth\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class PermissionController extends BaseController
 {
@@ -34,7 +35,7 @@ class PermissionController extends BaseController
         // Filter pencarian
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%");
+                $q->where('name', 'like', "%$search%")->orWhere('header_menu', 'like', "%$search%")->orWhere('child_menu', 'like', "%$search%");
             });
         }
 
@@ -47,6 +48,7 @@ class PermissionController extends BaseController
         $page = $request->get('page', 1);
 
         $sortBy = match($request->sort_by ?? '') {
+        // dari request        // dari match
             'name'          => 'name',
             'updated'       => 'updated_at',
             // 'permission'    => 'permission',
@@ -73,7 +75,7 @@ class PermissionController extends BaseController
                     $color = 'yellow';
                 } elseif(strtolower($item->name) == 'delete'){
                     $color = 'red';
-                } elseif(strtolower($item->name) == 'assign'){
+                } elseif(strtolower($item->name) == 'approve'){
                     $color = 'purple';
                 } else{
                     $color = 'gray';
@@ -129,11 +131,15 @@ class PermissionController extends BaseController
             ], 422);
         }
 
+        $user = Auth::user();
+
         Permission::create([
-            'name'  => $request->name,
+            'name'  => strtolower($request->name),
             'slug'  => $slug,
             'header_menu' => strtolower($request->head_menu),
             'child_menu' => $request->child_menu  ? strtolower($request->child_menu) : '',
+            'created_by' => $user->id,
+            'updated_by' => $user->id
         ]); 
 
         return response()->json([
@@ -179,18 +185,20 @@ class PermissionController extends BaseController
         
 
         if ($duplicateName) {
-             return response()->json([
+            return response()->json([
                 'success' => false,
                 'message' => 'Permission alredy exist'
             ], 422);
         }
 
+        $user = Auth::user();
         $permissions = Permission::findOrFail($id);
         $permissions->update([
-            'name'  => $request->name,
+            'name'  => strtolower($request->name),
             'slug'  => $slug,
             'header_menu' => strtolower($head_menu),
-            'child_menu' => $request->child_menu ? strtolower($child_menu) : ''
+            'child_menu' => $request->child_menu ? strtolower($child_menu) : '',
+            'updated_by' => $user->id
         ]);
 
         return response()->json([
@@ -230,7 +238,7 @@ class PermissionController extends BaseController
                         <i class="fa fa-history text-white"></i>
                     </div>
                     <div class="flex-1 pb-8">
-                        <h3 class="font-bold text-gray-900 mb-2"> Create Role '.e($item->name).'</h3>
+                        <h3 class="font-bold text-gray-900 mb-2"> Create Permission '.e($item->name).'</h3>
                         <p class="text-sm text-gray-600 mb-2"> Create by '.e($name_created).'</p>
                         <p class="text-sm text-gray-500">'.e($time_created).'</p>
                     </div>
@@ -249,7 +257,7 @@ class PermissionController extends BaseController
                                 <i class="fa fa-history text-white"></i>
                             </div>
                             <div class="flex-1 pb-8">
-                                <h3 class="font-bold text-gray-900 mb-2"> Update Role '.e($item->name).'</h3>
+                                <h3 class="font-bold text-gray-900 mb-2"> Update Permission '.e($item->name).'</h3>
                                 <p class="text-sm text-gray-600 mb-2">Update by '.e($name_updated).'</p>
                                 <p class="text-sm text-gray-500">'.e($time_updated).'</p>
                             </div>

@@ -92,6 +92,25 @@
                     </select>
                 </div>
 
+                @php
+                    use App\Models\Master\Position;
+                    $positions = Position::all();
+                @endphp
+
+                {{-- Status --}}
+                <div class="max-w-md">
+                    <label class="custom-label">
+                        <i class="fas fa-chess-king"></i>
+                        Position
+                    </label>
+                    <select id="position" name="position" class="w-full" required>
+                        <option value="">Select Position</option>
+                        @foreach ($positions as $p)
+                            <option value="{{$p->id}}">{{ucfirst($p->level).' '.$p->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+
             </div>
 
             <!-- Modal Footer -->

@@ -29,3 +29,52 @@ return new class extends Migration
 
 // rollback 1 langkah terakhir:
 php artisan migrate:rollback
+
+
+// migration table 1 persatu
+php artisan migrate --path=/database/migrations/2025_12_15_000000_create_approval_flows_table.php
+
+// jika ada migration tidak jalan , maka rollback caranya lihat semua migration yang jalan
+php artisan migrate:status
+
+kemudian 
+php artisan migrate:rollback --step=1
+
+
+// cara jalankan docker create image (dengan spesifik nama file)
+docker build -t laravel-dashbord -f Dockerfile.stg .
+
+docker build        => perintah untuk membuat image
+-t laravel-dashbord => memberi nama (tag) image Anda "laravel-dashbord"
+-f Dockerfile.stg   => gunakan file bernama "Dockerfile.stg" (bukan Dockerfile default)
+.                   => lokasi context/folder saat ini
+
+// bisa juga create image dengan cara
+docker build -t laravel-dashboard .
+
+// cara jalankan container 
+docker run -d \
+  -p 8000:80 \
+  --name laravel-app \
+  laravel-dashboard
+
+// penjelasan
+docker run = jalankan container dari image
+-d = detached mode (berjalan di background)
+-p 8000:80 = port mapping
+
+8000 = port di komputer Anda
+80 = port di dalam container
+Artinya: akses localhost:8000 akan terhubung ke port 80 di container
+
+
+--name laravel-app = beri nama container "laravel-app"
+laravel-dashboard = nama image yang digunakan
+
+// kalo di project development pakai docker compose agar setiap perubahan local auto update di container
+// kalo di project production pakai docker tanpa volume agar tidak mengambil perubahan local
+
+
+// kalo untuk project besar seperti laravel , node js yang sudah connect database dosarnkan pakai docker compose
+
+

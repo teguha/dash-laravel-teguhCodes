@@ -31,7 +31,7 @@
                                 {{ ucwords($user->name)}}
                             </h2>
                             <p class="text-gray-600 text-sm leading-relaxed mb-4" id="user-desc">
-                                Main Director at PT Pandawa 5 With Role {{ucfirst($role->name)}}
+                                {{ucwords($structure?->level.' '.$structure?->name ?? 'Staf')}} at PT Pandawa 5 With Role {{ucfirst($role?->name ?? '-')}}
                                 <!-- Passionate designer with 8+ years of experience creating beautiful and functional digital products. Love working with creative teams and solving complex problems. -->
                             </p>
                             <div class="space-y-3">
@@ -88,18 +88,33 @@
                                     <div class="relative">
                                         <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
                                         <div class="space-y-6">
-                                            <div class="relative flex gap-4">
-                                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold z-10">
-                                                    2024
+                                            @if(count($notifactions) > 0 )
+                                                @foreach ($notifactions as $notif)    
+                                                    <div class="relative flex gap-4">
+                                                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold z-10">
+                                                            <i class="fa fa-history"></i>
+                                                        </div>
+                                                        <div class="flex-1 pb-8">
+                                                            <h3 class="font-bold text-gray-900 mb-1 text-[15px] font-[arial]">New Message</h3>
+                                                            <a href="/notification/{{$notif->id}}/read" class="text-sm text-gray-600 mb-2">{{$notif->data['data']['description']}}</a>
+                                                            <p class="text-sm text-gray-500">{{ date('d M Y',strtotime($notif->created_at)) }} -  <a href="/notification/{{$notif->id}}/read" class="text-blue-500 font-bold text-sm"> View Detail </a></p>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="relative flex gap-4 p-4 bg-white rounded-lg shadow-md items-center">
+                                                    <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl">
+                                                        <i class="fas fa-bell"></i>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <h3 class="font-semibold text-gray-800 text-lg">No Message Available</h3>
+                                                        <p class="text-gray-500 text-sm">You have no notifications at the moment.</p>
+                                                    </div>
                                                 </div>
-                                                <div class="flex-1 pb-8">
-                                                    <h3 class="font-bold text-gray-900 mb-2">Senior Product Designer</h3>
-                                                    <p class="text-sm text-gray-600 mb-2">TechCorp Inc. • Full-time</p>
-                                                    <p class="text-sm text-gray-500">Leading design team and creating innovative solutions for enterprise clients.</p>
-                                                </div>
-                                            </div>
+                                            @endif
+                                            
 
-                                            <div class="relative flex gap-4">
+                                            {{-- <div class="relative flex gap-4">
                                                 <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold z-10">
                                                     2022
                                                 </div>
@@ -108,9 +123,9 @@
                                                     <p class="text-sm text-gray-600 mb-2">StartupXYZ • Full-time</p>
                                                     <p class="text-sm text-gray-500">Designed core features for mobile and web applications.</p>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
-                                            <div class="relative flex gap-4">
+                                            {{-- <div class="relative flex gap-4">
                                                 <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold z-10">
                                                     2020
                                                 </div>
@@ -119,7 +134,8 @@
                                                     <p class="text-sm text-gray-600 mb-2">DesignStudio • Freelance</p>
                                                     <p class="text-sm text-gray-500">Created beautiful interfaces for various clients and projects.</p>
                                                 </div>
-                                            </div>
+                                            </div> --}}
+
                                         </div>
                                     </div>
                                 </div>

@@ -13,10 +13,23 @@
             <li>
                 <div class="flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                    <a href="#" class="ml-1 text-sm font-medium {{ $fields['child2'] == '' ? 'text-blue-700' : 'text-gray-700' }} hover:text-blue-600 md:ml-2">{{$fields['child1']}}</a>
+                    <a href="{{ !empty($fields['child1_href']) ? route($fields['child1_href']) : '#' }}" class="ml-1 text-sm font-medium {{ $fields['child2'] == '' ? 'text-blue-700' : 'text-gray-700' }} hover:text-blue-600 md:ml-2">{{$fields['child1']}}</a>
                 </div>
             </li>
+
+            
         @endif
+
+        {{-- @if(!empty($fields['child2']))
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    <a href="{{ !empty($fields['child2_href']) ? route($fields['child2_href']) : '#' }}" class="ml-1 text-sm font-medium {{ isset($fields['child3'])  ? 'text-blue-700' : 'text-gray-700' }} hover:text-blue-600 md:ml-2">{{$fields['child2']}}</a>
+                </div>
+            </li>
+
+            
+        @endif --}}
 
         @if(!empty($fields['child2']))
             <li aria-current="page">

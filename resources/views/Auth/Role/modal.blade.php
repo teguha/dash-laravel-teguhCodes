@@ -1,7 +1,7 @@
 <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300">
         
     <!-- Modal Container -->
-    <div id="modalContainer" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all duration-300 scale-95 opacity-0">
+    <div id="modalContainer" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all duration-300 scale-95 opacity-0 ">
         
         <!-- Modal Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <div class="p-6 space-y-5 hidden" id="form-track">
+            <div class="p-6 space-y-5 " id="form-track">
             </div>
 
             <div class="p-6 space-y-5" id="form-body">

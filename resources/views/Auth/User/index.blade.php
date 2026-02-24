@@ -17,6 +17,13 @@
             ]
         ])
 
+        @php
+            $user = Auth::user();
+            $re_role = App\Models\Auth\Role::find($user->role_id ?? 26);
+            $userPerms = json_decode($re_role->permission ?? '[]', true);
+            $menu = 'auth-user';
+        @endphp
+
         <!-- Page Header with Title and Actions -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-4">
             <div class="flex flex-col lg:flex-row md:items-left md:justify-between gap-4">
@@ -28,7 +35,7 @@
 
                 @include('App.Partials.action', [
                     'fields' => [
-                        'add' => true,
+                        'add' => in_array('add-'.$menu, $userPerms),
                         'export' => true,
                         'import' => true,
                     ]
@@ -58,6 +65,7 @@
                     ['field' => 'email', 'label' => 'Email', 'sortable' => false],
                     ['field' => 'phone', 'label' => 'Phone', 'sortable' => false],
                     ['field' => 'status', 'label' => 'Status', 'sortable' => false],
+                    ['field' => 'position', 'label' => 'Position', 'sortable' => false],
                     ['field' => 'updated_at', 'label' => 'Updated At', 'sortable' => true],
                 ];
             @endphp
@@ -87,6 +95,7 @@
     
     @php
         $rolesData = App\Models\Auth\Role::all();
+        $structures = App\Models\Master\Structure::all();
     @endphp
 @endsection
 
@@ -102,7 +111,10 @@
             "inactive"  : "inactive",
         }
 
-        const roleUser = @json($rolesData);
+        const roleUser      = @json($rolesData);
+        const structUser    = @json($structures);
+        const userPerms     = @json($userPerms);
+        const menu          = @json($menu);
 
         const routes = {
             add     : "{{ route('admin.user.store') }}",
@@ -248,13 +260,20 @@
                                     ${item.phone}
                                 </span>
                             </td>
-                           
                             <td class="px-6 py-4 border-r border-gray-200">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${item.status != 'Inactive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} ">
                                     
                                     ${item.status}
                                 </span>
                             </td>
+
+                            <td class="px-6 py-4 border-r border-gray-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${item.structure_color}-100 text-${item.structure_color}-700 ">
+                                    
+                                    ${item.structure}
+                                </span>
+                            </td>
+
                             ${item.updated_at}
                             <td class="px-6 py-4">
                                 <div class="flex justify-center">
@@ -266,44 +285,61 @@
                                         </button>
                                         
                                         <div class="dropdown-menu hidden absolute left-1/2 -translate-x-1/2 w-52 bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] overflow-hidden">
-                                            <a href='#' data-id="${item.id}" data-type="show" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
-                                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-eye text-blue-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">View Details</span>
-                                            </a>
-
-                                            <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
-                                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-map-marker-alt text-green-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Track Activity</span>
-                                            </a>
-
-                                            <a href='#' data-id="${item.id}" data-type="edit" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
-                                                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-edit text-yellow-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Edit User</span>
-                                            </a>
-
-                                            <div class="border-t border-gray-200 my-1"></div>
-                                            
-                                            <button data-id="${item.id}" data-type="delete" class="btn-action w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-trash text-red-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Delete User</span>
-                                            </button>
+                                            ${generateDropdown(item)}
                                         </div>
                                     </div>
                                 </div>
                             </td>
+                            
                         </tr>`;
                     });
 
                 }
+
                 $('#table-body').html(html);
+
+                function generateDropdown(item) {
+                    let dropdownHtml = '';
+                    if(userPerms.includes(`view-${menu}`)){
+                        dropdownHtml += `
+                        <a href='#' data-id="${item.id}" data-type="show" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-eye text-blue-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">View Details</span>
+                        </a>
+                        
+                        <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-history text-green-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Track Activity</span>
+                        </a>
+                        `;
+                    }
+
+                    if(userPerms.includes(`edit-${menu}`)){
+                        dropdownHtml += `
+                        <a href='#' data-id="${item.id}" data-type="edit" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-edit text-yellow-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Edit Data</span>
+                        </a>`;
+                    }
+
+                    if(userPerms.includes(`delete-${menu}`)){
+                        dropdownHtml += `
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <button data-id="${item.id}" data-type="delete" class="btn-action w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trash text-red-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Delete Data</span>
+                        </button>`;
+                    }
+                    return dropdownHtml;
+                }
             }
 
             // Event klik pagination
@@ -359,6 +395,7 @@
                     $('#email').val('');
                     $('#status-user').val('').change();
                     $('#role-select').val('').change();
+                    $('#position').val('').change();
 
                     //disabled
                     $('#name').prop('disabled', false);
@@ -367,6 +404,7 @@
                     $('#phone').prop('disabled', false);
                     $('#email').prop('disabled', false);
                     $('#password-field').removeClass('hidden');
+                    $('#position').prop('disabled', false);
     
                     $('#modal-footer').removeClass('hidden');
                     $('#btn-submit').removeClass('bg-yellow-600 hover:bg-yellow-700').addClass('bg-blue-600 hover:bg-blue-700');
@@ -403,6 +441,10 @@
                                 $('#role-select').val(roleValue).change();
                                 $('#email').val(res.email);
                                 $('#phone').val(res.phone);
+                                $('#position').val(res.position);
+                                
+
+
                                 
                                 //disabled
                                 $('#name').prop('disabled', false);
@@ -410,6 +452,7 @@
                                 $('#role-select').prop('disabled', false);
                                 $('#phone').prop('disabled', false);
                                 $('#email').prop('disabled', false);
+                                $('#position').prop('disabled', false);
 
                                 $('#password-field').addClass('hidden');
 
@@ -436,7 +479,14 @@
                                 $('#role-select').val(roleValue).change();
                                 $('#email').val(res.email);
                                 $('#phone').val(res.phone);
+                                $('#position').val(res.position);
+                                
+
+
+
+
                                 $('#password-field').addClass('hidden');
+
                                 
                                 // form disable 
                                 $('#name').prop('disabled', true);
@@ -444,6 +494,7 @@
                                 $('#role-select').prop('disabled', true);
                                 $('#phone').prop('disabled', true);
                                 $('#email').prop('disabled', true);
+                                $('#position').prop('disabled', true);
 
                                 // form Modal
                                 $('#form-track').addClass('hidden');
@@ -494,7 +545,57 @@
                 width: '100%',
                 minimumResultsForSearch: 2 // Show search box if more than 5 items
             });
+
+             $('#position').select2({
+                placeholder: 'Select position...',
+                allowClear: true,
+                width: '100%',
+                minimumResultsForSearch: 2 // Show search box if more than 5 items
+            });
         });
+
+        // callStructure();
+    
+
+        // function callStructure(){
+        //     $('#structure').select2({
+        //         placeholder: "Pilih Struktur",
+        //         templateSelection: function (data) {
+        //             return data.text || data.id;
+        //         },
+        //         ajax: {
+        //             url: 'ajax/search-structure', // URL ke controller Anda
+        //             dataType: 'json',
+        //             delay: 250, // Penundaan pencarian
+        //             data: function (params) {
+        //                 return {
+        //                     q: params.term // Mengirimkan parameter pencarian
+        //                 };
+        //             },
+        //             processResults: function (data) {
+        //                 var results = [];
+
+        //                 // Proses data menjadi format yang diperlukan untuk select2
+        //                 $.each(data, function(index, group) {
+        //                     results.push({
+        //                         text: group.text,  // Nama grup (sub_corp)
+        //                         children: group.children.map(function(item) {
+        //                             return {
+        //                                 id: item.id,
+        //                                 text: item.text
+        //                             };
+        //                         })
+        //                     });
+        //                 });
+
+        //                 return {
+        //                     results: results
+        //                 };
+        //             },
+        //             cache: true
+        //         }
+        //     });
+        // }
     </script>
 
     {{-- send data modal --}}

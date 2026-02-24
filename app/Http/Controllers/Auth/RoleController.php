@@ -11,10 +11,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
-
-use App\Models\Auth\User;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Auth\Role;
 use App\Models\Auth\Permission;
+use App\Notifications\DataCreateNotification;
+use App\Notifications\DataUpdateNotification;
+use App\Notifications\DataDeleteNotification;
+use App\Notifications\RequestApprovalNotification;
+use Illuminate\Support\Facades\Notification;
 
 class RoleController extends BaseController
 {
@@ -81,6 +86,7 @@ class RoleController extends BaseController
                     'updated_at'        => datatable_user_time($item->re_updated_by ?? $item->re_created_by, $item->updated_at ?? $item->created_at),
                 ];
             }),
+
             'pagination' => [
                 'current_page'          => $data->currentPage(),
                 'per_page'              => $data->perPage(),
@@ -90,6 +96,33 @@ class RoleController extends BaseController
                 'to'                    => $data->lastItem(),
             ]
         ]);
+    }
+
+    // notif
+    private function notifUser($data, $action, $menu){
+        $user = User::whereHas('re_role', function($q){
+            $q->where('name', 'admin');
+        })->get();
+
+        if(isset($user)){
+            $dataDetails =[
+                'id'    => $data->id,
+                'name'  => $data->name,
+                'description' => Auth::user()->name .' '.ucfirst($action).' ' . 'Data '. ucfirst($menu).''.' With Detail '.ucfirst($data->name) ?? '',
+                'url'   => route('admin.setting.role.index')
+                // 'url'   => route('admin.setting.role.index', $data->id)
+            ];
+            
+            if($action == 'create'){
+                Notification::send($user,new DataCreateNotification($dataDetails));
+            }elseif($action == 'update'){
+                Notification::send($user,new DataUpdateNotification($dataDetails, $user));
+            }elseif($action == 'delete'){
+                Notification::send($user,new DataDeleteNotification($dataDetails, $user));
+            }else{
+                Notification::send($user,new RequestApprovalNotification($dataDetails, $user));
+            }
+        }
     }
 
     // store data
@@ -117,11 +150,17 @@ class RoleController extends BaseController
             ], 422);
         }
 
-        Role::create([
+        $user = Auth::user();
+
+        $data = Role::create([
             'name'  => $request->name,
             'slug'  => $slug,
             'color' => $request->color_theme,
+            'created_by' => $user->id,
+            'updated_by' => $user->id
         ]); 
+
+        $this->notifUser($data, 'create', 'role');
 
         return response()->json([
             'success' => true,
@@ -161,18 +200,22 @@ class RoleController extends BaseController
         
 
         if ($duplicateName) {
-             return response()->json([
+            return response()->json([
                 'success' => false,
                 'message' => 'Role alredy exist '
             ], 422);
         }
+        $user = Auth::user();
 
         $role = Role::findOrFail($id);
         $role->update([
             'name'  => $request->name,
             'slug'  => $slug,
             'color' => $request->color_theme,
+            'updated_by' => $user->id
         ]);
+
+        $this->notifUser($role, 'update', 'role');
 
         return response()->json([
             'success' => true,
@@ -183,6 +226,7 @@ class RoleController extends BaseController
     // delete data
     public function destroy($id){
         $role = Role::findOrFail($id);
+        $this->notifUser($role, 'delete', 'role');
         $role->delete();
 
         return response()->json([
@@ -194,6 +238,8 @@ class RoleController extends BaseController
     // simple track
     public function track($id){
         $item = Role::find($id);
+
+        
 
         $name_created = $item->re_created_by?->name ?? 'System';
         $time_created = optional($item->created_at)
@@ -255,7 +301,7 @@ class RoleController extends BaseController
         $permissions        = Permission::all();
         $role               = Role::findOrFail($id);
         $lastPermissions    = json_decode($role->permission ?? '[]', true);
-        return view('Dashboard.auth.role.permission-assign', compact('id','permissions', 'role', 'lastPermissions'));
+        return view('Auth.role.permission-assign', compact('id','permissions', 'role', 'lastPermissions'));
     }
 
     public function storePermission(Request $request, $id) {

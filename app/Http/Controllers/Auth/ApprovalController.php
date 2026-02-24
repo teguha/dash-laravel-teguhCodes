@@ -9,7 +9,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Support\Str;
 
-use App\Models\Auth\User;
+use App\Models\User;
 use App\Models\Auth\Role;
 use App\Models\Auth\Permission;
 use App\Models\Auth\Approval;

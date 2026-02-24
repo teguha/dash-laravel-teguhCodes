@@ -29,5 +29,9 @@ class ActivityLog extends Authenticatable
         'after' => 'array'
     ];
 
+
+    public function re_user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
     
 }

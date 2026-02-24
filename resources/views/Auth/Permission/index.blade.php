@@ -17,6 +17,13 @@
             ]
         ])
 
+        @php
+            $user = Auth::user();
+            $re_role = App\Models\Auth\Role::find($user->role_id ?? 26);
+            $userPerms = json_decode($re_role->permission ?? '[]', true);
+            $menu = 'setting-permission';
+        @endphp
+
         <!-- Page Header with Title and Actions -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-4">
             <div class="flex flex-col lg:flex-row md:items-left md:justify-between gap-4">
@@ -28,7 +35,7 @@
 
                 @include('App.Partials.action', [
                     'fields' => [
-                        'add' => true,
+                        'add' => in_array('add-'.$menu, $userPerms),
                         'export' => true,
                         // 'import' => true,
                     ]
@@ -100,9 +107,12 @@
             delete  : "{{ route('admin.setting.permission.delete', ['id' => ':id']) }}"
         };
 
+        const userPerms     = @json($userPerms);
+        const menu          = @json($menu);
+
         // $(function() {
             let currentSortBy = null;
-            let currentSortDir = 'asc';
+            let currentSortDir = 'desc';
             let dataToDelete = null;
             const lengthHead = @json($columns);
 
@@ -210,10 +220,10 @@
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ">
                                     ${item.menu}
                                 </span>
-                           
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ">
+                                ${item.child_menu ? ` <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ">
                                     ${item.child_menu}
-                                </span>
+                                </span>` : ``}
+                                
                             </td>
                             ${item.created_at}
                             ${item.updated_at}
@@ -227,44 +237,59 @@
                                         </button>
                                         
                                         <div class="dropdown-menu hidden absolute left-1/2 -translate-x-1/2 w-52 bg-white rounded-xl shadow-xl border border-gray-200 z-[9999] overflow-hidden">
-                                            <a href='#' data-id="${item.id}" data-type="show" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
-                                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-eye text-blue-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">View Details</span>
-                                            </a>
-
-                                            <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
-                                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-history text-green-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Track Activity</span>
-                                            </a>
-
-                                            <a href='#' data-id="${item.id}" data-type="edit" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
-                                                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-edit text-yellow-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Edit User</span>
-                                            </a>
-
-                                            <div class="border-t border-gray-200 my-1"></div>
-                                            
-                                            <button data-id="${item.id}" data-type="delete" class="btn-action w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                                                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-trash text-red-600 text-xs"></i>
-                                                </div>
-                                                <span class="font-medium">Delete User</span>
-                                            </button>
+                                            ${generateDropdown(item)}
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>`;
                     });
-
                 }
+
                 $('#table-body').html(html);
+
+                function generateDropdown(item) {
+                    let dropdownHtml = '';
+                    if(userPerms.includes(`view-${menu}`)){
+                        dropdownHtml += `
+                        <a href='#' data-id="${item.id}" data-type="show" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-eye text-blue-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">View Details</span>
+                        </a>
+                        
+                        <a href='#' data-id="${item.id}" data-type="track" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-green-50 transition-colors">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-history text-green-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Track Activity</span>
+                        </a>
+                        `;
+                    }
+
+                    if(userPerms.includes(`edit-${menu}`)){
+                        dropdownHtml += `
+                        <a href='#' data-id="${item.id}" data-type="edit" class="btn-action flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-yellow-50 transition-colors">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-edit text-yellow-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Edit Data</span>
+                        </a>`;
+                    }
+
+                    if(userPerms.includes(`delete-${menu}`)){
+                        dropdownHtml += `
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <button data-id="${item.id}" data-type="delete" class="btn-action w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trash text-red-600 text-xs"></i>
+                            </div>
+                            <span class="font-medium">Delete Data</span>
+                        </button>`;
+                    }
+                    return dropdownHtml;
+                }
             }
 
             // Event klik pagination

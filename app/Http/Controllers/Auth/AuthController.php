@@ -7,10 +7,12 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
-use App\Models\Auth\User;
+use App\Models\User;
+use App\Models\Master\Structure;
 use App\Models\Auth\Role;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Auth\Permission;
+use App\Models\Master\Position;
 // use GuzzleHttp\Psr7\Request;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +49,14 @@ class AuthController extends BaseController
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials, $request->remember)) {
+            $status = Auth::User()->status == 'active' ? true : false;
+            if(!$status){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is not active'
+                ], 422);
+            }
+            
             $request->session()->regenerate();
             return response()->json([
                 'success' => true,
@@ -141,7 +151,19 @@ class AuthController extends BaseController
     public function profile(){
         $user = Auth::user();
         $role = Role::find($user->role_id);
-        return view('Auth.User.profile', compact(['user', 'role']));
+        if($user->struct_id){
+            $structure = Position::find($user->struct_id);
+        }else{
+            $structure = null;
+        }
+
+        // all notif message
+        $unreadNotificationsQuery = User::find(Auth::id())
+            ->unreadNotifications()
+            ->orderBy('created_at', 'desc');
+
+        $notifactions  = $unreadNotificationsQuery->get();
+        return view('Auth.User.profile', compact(['user', 'role', 'structure', 'notifactions']));
     }
 
     // get data user detail

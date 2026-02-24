@@ -37,4 +37,6 @@ trait ActivityLoggable
             'after'    => $after
         ]);
     }
+
+    // protexted => hanya bisa diakses dari dalam class dan class turunannya saja
 }

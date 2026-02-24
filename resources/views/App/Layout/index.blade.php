@@ -339,6 +339,11 @@
             width: 20px;
             height: 20px;
         }
+
+        /* .dropdown-menu{
+            right: 10px !important;
+            margin-bottom: 32px !important;
+        } */
     </style>
 
 </head>
@@ -351,7 +356,7 @@
             <!-- Logo -->
             <div class="flex items-center justify-between mb-8 px-2">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-blue-300 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-xl"><i class="fa fa-snowflake text-white"></i></span>
                     </div>
                     <span id="logoText" class="ml-3 text-xl font-semibold text-gray-800 transition-opacity duration-300 whitespace-nowrap overflow-hidden">Dashboard</span>

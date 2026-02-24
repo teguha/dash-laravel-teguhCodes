@@ -11,10 +11,35 @@
         </div>
         
         <div class="flex items-center space-x-4">
-            <button class="relative text-gray-600 hover:text-gray-800">
+            {{-- <button class="relative text-gray-600 hover:text-gray-800">
                 <i class="fas fa-bell text-lg"></i>
                 <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
+            </button> --}}
+
+            @php
+                $unreadNotifications = Auth::user()->unreadNotifications;
+            @endphp
+            <button class="relative text-gray-600 hover:text-gray-800" id="notification-button">
+                <i class="fas fa-bell text-lg"></i>
+                <span id="notification-count" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                    {{$unreadNotifications->count() }}
+                </span>
+
+                    <!-- Layer animasi ping di belakang badge -->
+                <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 opacity-75 animate-ping"></span>
+
             </button>
+
+            <!-- Dropdown untuk menampilkan daftar notifikasi -->
+            <div id="notification-dropdown" class="absolute top-10 right-5 mt-2 w-100 bg-white shadow-lg rounded-md p-4 hidden">
+                <h3 class="text-sm font-semibold text-gray-700">Notifikasi</h3>
+                <ul id="notification-list" class="mt-2">
+                    <!-- Daftar notifikasi akan muncul di sini -->
+                </ul>
+            </div>
+
+        
+
             @php
                 $user = Auth::user();
             @endphp
@@ -64,5 +89,69 @@
         if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
             dropdown.classList.add('hidden');
         }
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Mengambil jumlah notifikasi dan daftar notifikasi
+        function loadNotifications() {
+            fetch("/api/notifications/count")  // Pastikan URL ini sesuai dengan route di Laravel Anda
+                .then(response => response.json())
+                .then(data => {
+                    // Update jumlah notifikasi yang belum dibaca
+                    const notificationCount = document.getElementById("notification-count");
+                    notificationCount.textContent = data.unread_count;
+
+                    // Tampilkan daftar notifikasi
+                    const notificationList = document.getElementById("notification-list");
+                    notificationList.innerHTML = ""; // Kosongkan daftar notifikasi
+
+                    // Jika ada notifikasi yang belum dibaca
+                    if (data.notifications.length > 0) {
+                        data.notifications.forEach(notification => {
+                            const li = document.createElement("li");
+                            li.classList.add("text-[12px]","font-[arial]" ,"text-gray-700", "py-1", "border-b");
+
+                            // Menampilkan detail notifikasi
+                            li.innerHTML = `
+                                <a href="/notification/${notification.id}/read" class="block hover:bg-gray-100 p-2">
+                                    <p><i class="fas fa-user text-[12px] text-gray-500 mr-3"></i> ${notification.data.data.description}</p>
+                                    <small class="text-xs text-gray-500 pl-6">${new Date(notification.created_at).toLocaleString()}</small>
+                                </a>
+                            `;
+                            notificationList.appendChild(li);
+                        });
+
+                        // Tambahkan link “View All” di bawah
+                        const liViewAll = document.createElement("li");
+                        liViewAll.classList.add("text-[12px]","font-[arial]","text-gray-700","py-2","text-center");
+
+                        liViewAll.innerHTML = `
+                            <a href="/notifications" class="block hover:bg-gray-100 p-2 font-medium text-blue-600">
+                                View All Notifications
+                            </a>
+                        `;
+
+                        notificationList.appendChild(liViewAll);
+                        
+                    } else {
+                        notificationList.innerHTML = "<li class='text-gray-500 text-sm'>Tidak ada notifikasi baru</li>";
+                    }
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        }
+
+        // Load notifikasi saat halaman dimuat
+        loadNotifications();
+
+        // Toggle dropdown notifikasi saat tombol notifikasi diklik
+        const notificationButton = document.getElementById("notification-button");
+        const notificationDropdown = document.getElementById("notification-dropdown");
+        
+        notificationButton.addEventListener("click", () => {
+            notificationDropdown.classList.toggle("hidden");
+        });
     });
 </script>

@@ -10,7 +10,7 @@ if (!function_exists('greet_user')) {
 if (!function_exists('datatable_user_time')) {
     function datatable_user_time($user, $time)
     {
-        $name = $user?->name ?? 'System';
+        $name = $user->name ?? 'System';
         $waktu = optional($time)
             ->timezone(config('app.timezone'))
             ->locale('id')
@@ -207,7 +207,7 @@ if (!function_exists('random_color')) {
     function random_color($id)
     {
         $val = $id < 10 ? $id : $id % 10;
-        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink',  'cyan', 'orange', 'brown', 'red'];
+        $colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink',  'cyan', 'orange', 'purple', 'red'];
         return $colors[$val];
     }
 }
