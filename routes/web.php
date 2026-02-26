@@ -89,7 +89,8 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('delete');
     });
-    
+
+    // update route 1
     // role 
     Route::prefix('admin/setting-role')->name('admin.setting.role.')->group(function () {
         Route::get('/data', [RoleController::class, 'getData'])->name('data');
