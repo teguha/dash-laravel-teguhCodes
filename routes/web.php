@@ -119,6 +119,7 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::delete('/delete/{id}', [PermissionController::class, 'destroy'])->name('delete');
     });
     
+    //update route 2
     // approval flow
     Route::prefix('admin/setting-approval-flow')->name('admin.setting.approval.flow.')->group(function () {
         Route::get('/data', [ApprovalFlowController::class, 'getData'])->name('data');
