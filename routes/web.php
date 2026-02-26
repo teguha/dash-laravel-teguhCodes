@@ -104,7 +104,8 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::put('/update/{id}', [RoleController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('delete');
     });
-    
+
+    // test misalnya adac update disini
     // permission
     Route::prefix('admin/setting-permission')->name('admin.setting.permission.')->group(function () {
         Route::get('/data', [PermissionController::class, 'getData'])->name('data');
