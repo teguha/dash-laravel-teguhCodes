@@ -86,7 +86,7 @@ Route::group(['middleware' => 'custom.auth'], function () {
         Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
         Route::get('/assign-role/{id}', [UserController::class, 'assignRole'])->name('assignRole');
         Route::post('/store-role/{id}', [UserController::class, 'storeRole'])->name('storeRole');
-        Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
+        // Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('delete');
     });
 
