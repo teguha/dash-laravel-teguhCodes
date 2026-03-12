@@ -55,6 +55,15 @@ class SubBagianController extends BaseController
             'name' => 'required',   
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         $bagian = Structure::find($request->bagian);
         $dataSlug = $bagian->name.' '.'sub_bagian'.' '.$request->name;
@@ -88,6 +97,16 @@ class SubBagianController extends BaseController
         $request->validate([
             'name' => 'required',   
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         $bagian = Structure::find($request->bagian);
         $dataSlug = $bagian->name.' '.'sub_bagian'.' '.$request->name;

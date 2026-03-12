@@ -247,6 +247,22 @@ if(!function_exists('generateReffCode')){
     }
 }
 
+// hapus XSS
+if(!function_exists('has_xss')){
+    function has_xss($req){
+
+        $data = $req->all();
+
+        foreach($data as $k => $v){
+            if(preg_match('/<script\b[^>]*>|on\w+\s*=/i', $v)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 
 
 

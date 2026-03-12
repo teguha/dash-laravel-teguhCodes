@@ -91,6 +91,16 @@ class MainCorporateController extends BaseController
             'tax'       => 'required'
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
+
         if($validator->fails()){
             return response()->json([
                 'success' => false,
@@ -154,6 +164,16 @@ class MainCorporateController extends BaseController
             'address'   => 'required',
             'tax'       => 'required'
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([

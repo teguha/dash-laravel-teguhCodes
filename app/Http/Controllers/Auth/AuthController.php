@@ -87,6 +87,16 @@ class AuthController extends BaseController
             'phone' => 'required',
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
+
         if($validator->fails()){
             return response()->json([
                 'success' => false,
@@ -183,6 +193,16 @@ class AuthController extends BaseController
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([

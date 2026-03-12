@@ -109,6 +109,16 @@ class PermissionController extends BaseController
             'head_menu' => 'required'
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
+
         if($validator->fails()){
             return response()->json([
                 'success' => false,
@@ -166,6 +176,16 @@ class PermissionController extends BaseController
             'name'      => 'required',
             'head_menu' => 'required'
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([

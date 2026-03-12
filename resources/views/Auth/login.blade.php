@@ -136,11 +136,14 @@
                         <!-- Login Button -->
                         <button 
                             id ="btn-submit"
-                            type="submit" 
-                            class="w-full py-3.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-                        disabled>
+                            {{-- type="submit"  --}}
+                            type = "button"
+                            class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                        >
+                            {{-- class="w-full py-3.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                        disabled> --}}
                             <i class="fas fa-sign-in-alt mr-2"></i>
-                            Sign In
+                            Validate Email
                         </button>
                     </form>
                 </div>
@@ -236,28 +239,54 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    @if (session('success'))
-        <script src="{{asset('js/alert.js')}}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                showAlert({
-                    type: 'success',
-                    title: 'Berhasil!',
-                    message: "{{ session('success') }}",
-                    duration: 0
+    <script src="{{asset('js/alert.js')}}"></script>
+        @if (session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    showAlert({
+                        type: 'success',
+                        title: 'Success!',
+                        message: "{{ session('success') }}",
+                        duration: 0
+                    });
                 });
-            });
-        </script>
-    @endif
+            </script>
+        @elseif(session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    showAlert({
+                        type: 'error',
+                        title: 'Failed!',
+                        message: "{{ session('error') }}",
+                        duration: 0
+                    });
+                });
+            </script>
+        @endif
     <script>
         // Toggle Password Visibility
-        $('#email').on('change keyup', function() {
-            let data ={
-                email : $('#email').val(),
-                _token: $('meta[name="csrf-token"]').attr('content')
+        // $('#email').on('change keyup', function() {
+
+        //     let data ={
+        //         email : $('#email').val(),
+        //         _token: $('meta[name="csrf-token"]').attr('content')
+        //     }
+        //     checkEmail(data);
+        // });
+
+        $('#btn-submit').on('click', function() {
+            let btn_type = this.type;
+            let email = $('#email').val();
+
+            console.log(btn_type, email);
+            if(btn_type == 'button' && email != ''){
+                let data ={
+                    email : $('#email').val(),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                }
+                checkEmail(data);
             }
-            checkEmail(data);
-        });
+        })
 
         function checkEmail(data){
             $.ajax({
@@ -268,13 +297,27 @@
                     if(response.success) {
                         $('#forget-password-form').removeClass('hidden');
                         $('#password-form').removeClass('hidden');
-                        $('#btn-submit').removeClass('from-gray-500 to-gray-600').addClass('from-blue-500 to-blue-600');
-                        $('#btn-submit').prop('disabled', false);
+                        $('#btn-submit').prop('type','submit');
+                        $('#btn-submit').html('Sign In');
+                        // $('#btn-submit').removeClass('from-gray-500 to-gray-600').addClass('from-blue-500 to-blue-600');
+                        // $('#btn-submit').prop('disabled', false);
+
                     }else{
                         $('#password-form').addClass('hidden');
                         $('#forget-password-form').addClass('hidden');
-                        $('#btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
-                        $('#btn-submit').prop('disabled', true);
+                        $('#btn-submit').prop('type','button');
+                        $('#btn-submit').html('Validate Email');
+                        // $('#btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
+                        // $('#btn-submit').prop('disabled', true);
+
+                        showAlert({
+                            type: 'error',
+                            title: 'Failed!',
+                            message: 'Email not found',
+                            duration: 0
+                        });
+
+                        
                     }
                 },
                 error: function(xhr) {
@@ -282,6 +325,8 @@
                     $('#password-form').addClass('hidden');
                     $('#btn-submit').removeClass('from-blue-500 to-blue-600').addClass('from-gray-500 to-gray-600');
                     $('#btn-submit').prop('disabled', true);
+
+                   
                 }
             });
         }
@@ -308,7 +353,6 @@
             let method  = 'POST';
             let url     = "{{ route('auth.login') }}";
             sendData( url, method, data);
-        
         });
 
         function sendData(url, method, data) {

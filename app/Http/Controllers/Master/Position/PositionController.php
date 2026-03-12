@@ -89,6 +89,16 @@ class PositionController extends BaseController
         $validator = Validator::make($request->all(), [
             'name'      => 'required',
         ]);
+        
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([
@@ -145,6 +155,16 @@ class PositionController extends BaseController
         $validator = Validator::make($request->all(), [
             'name'      => 'required',
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([

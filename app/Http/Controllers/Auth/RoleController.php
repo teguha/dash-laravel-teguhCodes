@@ -133,6 +133,16 @@ class RoleController extends BaseController
             'color_theme' => 'required'
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
+
         if(empty($request->color_theme)){
             return response()->json([
                 'success' => false,
@@ -185,6 +195,16 @@ class RoleController extends BaseController
             'name'          => 'required',   
             'color_theme'   => 'required'
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if(empty($request->color_theme)){
             return response()->json([

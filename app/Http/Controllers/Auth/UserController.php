@@ -138,6 +138,16 @@ class UserController extends BaseController
             'phone'     => 'required',
         ]);
 
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
+
         if($validator->fails()){
             return response()->json([
                 'success' => false,
@@ -203,6 +213,16 @@ class UserController extends BaseController
             'email'             => 'required|email|unique:users,email,' . $id,
             'phone'             => 'required',
         ]);
+
+        // check xss data
+        if(has_xss($request)) {
+             return response()->json([
+                'success' => false,
+                'message' => 'Failed to update data',
+                'errors'  => '', // <-- ini kuncinya
+                'fields'  => '', // opsional: hanya nama field yg error
+            ], 422);
+        }
 
         if($validator->fails()){
             return response()->json([
